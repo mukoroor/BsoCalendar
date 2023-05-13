@@ -1,0 +1,504 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Changa&family=Sen&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "JetBrains Mono", monospace;
+    /* font-family: 'Bebas Neue', cursive; */
+    /* font-family: 'Changa', sans-serif; */
+    /* font-family: 'Sen', sans-serif; */
+    cursor: default;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--textColor);
+}
+
+
+body {
+    background-color:var(--bG);
+    overflow: hidden;
+    --sL: 8vmax;
+    --pGap: 0.5vmax;
+    /* colors */
+    /* light */
+    
+    --bG: #909590;
+    --primaryC: #2c302e;
+    --secondaryC:71, 74, 72;
+    --tertiaryC: #e29fff;
+    --accentC: #ff435f;
+    --textColor: white;
+    /* dark */
+    /* --bG: #FFF7FB;
+    --primaryC: white;
+    --secondaryC: 255, 205, 188;
+    --tertiaryC: #e29fff;
+    --accentC: #ff435f;
+    --textColor: #001A23; */
+}
+
+button {
+    background: none;
+    outline: none;
+    border: none;
+}
+
+span {
+    overflow: hidden;
+}
+
+input {
+    color: black;
+}
+
+::-webkit-scrollbar {
+    /* height: var(--pGap);
+    width: var(--pGap); */
+    height: 0;
+    width: 0;
+}
+/* 
+::-webkit-scrollbar-thumb {
+    background-color: rgba(var(--secondaryC), 0.75);
+    border-radius: calc(0.5 * var(--pGap));
+}
+
+::-webkit-scrollbar-corner {
+    opacity: 0;
+} */
+
+#calendar, #newCalendarEvent, .header, .nav, .summary, .timeline, .detailed div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header, .detailed div {
+    justify-content: space-between;
+}
+
+.blur {
+    filter: blur(1px) brightness(75%) grayscale(0.2);
+    transition: filter 0.2s ease-in-out;
+}
+
+.card {
+    background-color: var(--primaryC);
+    padding: var(--pGap);
+    border-radius: 0.75vmax;
+    filter: drop-shadow(0 0 calc(0.5 * var(--pGap)) rgb(105, 105, 105));
+}
+
+.header {
+    padding: 1vmax;
+    font-size: 2em;
+    font-weight: 600;
+}
+
+.summary {
+    position: relative;
+    height: 100vh;
+    z-index: 1;
+    padding: var(--pGap);
+    gap: var(--pGap);
+    align-items: stretch;
+}
+
+.summary > * {
+    position: relative;
+}
+
+#calendar {
+    gap: var(--pGap);
+    flex-direction: column;
+    height: 100%;
+    justify-content: flex-start;
+    align-items: stretch;
+    z-index: 1;
+}
+
+#expansion {
+    flex: 1 0 30%;
+    z-index: 0;
+}
+
+#month {
+    flex: 1 1 calc(0.5 * var(--sL));
+}
+
+.monthDays {
+    flex-shrink: 10;
+    flex-grow: 10;
+    --gap: calc(0.02 * var(--sL));
+    position: relative;
+    display: grid;
+    gap: var(--gap);
+    grid-template-columns: repeat(7, var(--sL));
+    grid-template-rows: repeat(5, var(--sL));
+    font-size: calc(0.1 * var(--sL));
+}
+
+.monthDays > * {
+    width: var(--sL);
+    height: var(--sL);
+    border-radius: var(--gap);
+}
+
+.day {
+    position: relative;
+    --h: 1.75em;
+    z-index: 1;
+    font-weight: 600;
+    background-color: rgb(var(--secondaryC));
+    filter: drop-shadow(0 0 calc(0.5 * var(--gap)) rgba(0, 0, 0, 0.4));
+}
+
+.day::before, .day::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 0.5vmax;
+    border-radius: inherit;
+} 
+
+.day::before {
+    top: var(--h);
+    background: linear-gradient(to top, transparent, rgba(var(--secondaryC), 0.75));
+}
+
+.day::after {
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent, rgba(var(--secondaryC), 0.75));
+}
+
+.day div:first-of-type {
+    height: var(--h);
+    line-height: 100%;
+    padding: 0.5em 0.5em 0;
+}
+
+.day > div:last-child {
+    gap: 0.2vmax;
+    padding: 0 0.25vmax;
+    display: flex;
+    overflow: scroll;
+    align-items: stretch;
+    flex-direction: column;
+    height: calc(var(--sL) - var(--h));
+}
+
+.day .event:last-of-type {
+    margin-bottom: 0.5vmax;
+}
+
+.day .event:first-of-type {
+    margin-top: 0.5vmax;
+}
+
+/* .day > div:last-child::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+} */
+
+#focus {
+    --a: 0;
+    position: absolute;
+    margin: var(--pGap);
+    transform-origin: center;
+}
+
+#focus::after, #focus::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--gap));
+    border-radius: calc(2 * var(--gap));
+    /* background: conic-gradient(from var(--a) , #537A5A, #648F6C, #76A281, #89B195, #9AE19D, #9AE19D, #9AE19D, #89B195, #76A281, #648F6C, #537A5A); */
+    background: conic-gradient(from var(--a),
+    #ffffff,
+    #D7F3D5,
+    #B7E6B8,
+    #96D996,
+    #76CC7A,
+    #57BF5D,
+    #39B241,
+    #1DA523,
+    #16921c,
+    #1DA523,
+    #39B241,
+    #57BF5D,
+    #76CC7A,
+    #96D996,
+    #B7E6B8,
+    #D7F3D5,
+    #ffffff);
+    background: conic-gradient(from var(--a),#FFA07A,#FFB6C1,#FFE4C4,#90EE90,#87CEFA,#ADD8E6,#D8BFD8,#E0FFFF,#FFEFD5,#F0E68C,#F0E68C,#FFEFD5,#E0FFFF,#D8BFD8,#ADD8E6,#87CEFA,#90EE90,#FFE4C4,#FFB6C1,#FFA07A);
+    background: repeating-conic-gradient(from var(--a), rgba(211,211,211,1) 0%, rgba(217,210,233,1) 7%, rgba(174,214,241,1) 13%, rgba(196,212,181,1) 20%, rgba(255,255,224,1) 28%, rgba(255,229,180,1) 35%, rgba(243,214,228,1) 43%);
+}
+
+#focus::before {
+    filter: blur(1px);
+}
+
+#today {
+    background: var(--accentC);
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+}
+
+#newCalendarEvent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 500;
+    width: calc(5 * var(--sL));
+    opacity: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 3em;
+    border-radius: 0.3em;
+    border: 0.05vmax solid #32313138;
+    transition: opacity 0.2s ease-in-out;
+}
+
+#newCalendarEvent > input[type="text"] {
+    width: 70%;
+}
+
+.event {
+    padding: 0.075em 0.2em;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: inline-block;
+    border-radius: 0.2em;
+}
+
+#submitExit {
+    position: absolute;
+    right: 0;
+    margin: 1rem;
+    height: 2vmax;
+    width: 2vmax;
+    fill: none;
+    transform: rotate(45deg);
+}
+
+#submitExit path {
+    stroke: var(--textColor);
+    stroke-width: 30;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 160 calc(40*3.1459 + 80);
+    transition: all 1s;
+}
+
+#submitExit path[data-valid="1"] {
+    stroke: green;
+    stroke-dasharray: 0 calc(40*3.1459 + 160) 1000;
+}
+
+#expansion {
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: min-content 1fr;
+    gap: var(--pGap);
+}
+
+#expansion .header {
+    height: calc(var(--sL) / 2);
+}
+
+.nav {
+    position: relative;
+    padding: 0 var(--pGap);
+    gap: var(--pGap);   
+}
+
+.nav > * {
+    position: relative;
+    line-height: 100%;
+    z-index: 1;
+    width: 2vmax;
+    height: 1vmax;
+}
+
+.nav div {
+    position: absolute;
+    left: var(--pGap);
+    transform: scale(1.25);
+    transform-origin: center;
+    background: var(--accentC);
+    border-radius: 10%/20%;
+}
+
+.view {
+    position: relative;
+    background: inherit;
+    font-size: 12px;
+}
+
+.view > * {
+    padding: var(--pGap);
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    filter: drop-shadow(0 0 calc(var(--pGap) / 4) rgba(0, 0, 0, 0.4));
+    border-radius: 0.25vmax;
+    position: absolute;
+    background: inherit;
+    transform-origin: center;
+}
+
+#listView {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pGap);
+}
+
+#dayView {
+    display: grid;
+    gap: 1% 0;
+    grid-template-rows: 1lh;
+    grid-template-columns: repeat(24, 1fr);
+}
+
+#weekView {
+    --dayWidth: calc(0.5 * var(--sL));
+}
+
+.hour {
+    text-align: center;
+    position: relative;
+}
+
+.hour::after {
+    position: absolute;
+    content: "";
+    z-index: -1;
+    left: 0;
+    height: calc(100vh - var(--sL) / 2 - (7 * var(--pGap)));
+    width: 100%;
+    border-left: 1px dashed rgba(255, 255, 255, 0.415);
+    background: repeating-linear-gradient(to right, rgba(var(--secondaryC), 0.5) 0 25%, transparent 25% 50%);
+}
+
+#hourGrid {
+    z-index: -1;
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    grid-column: 1 / -1;
+}
+
+.eventGroup {
+    order: 1;
+    position: relative;
+    height: 100%;
+    border-radius: 0.75ex;
+}
+
+.eventGroup:not(.eventGroup[multiplicity="1"]):not(.expanded)::after {
+    position: absolute;
+    z-index: 1;
+    content: attr(multiplicity);
+    left: calc(2* var(--sL));
+    top: 0;
+    height: 1.5em;
+    width: 1.5em;
+    line-height: 1.5em;
+    text-align: center;
+    font-size: 0.8em;
+    transform: translate(-75%, -25%);
+    border-radius: 50%;
+    background-color: var(--accentC);
+}
+
+.eventGroup > div:first-child {
+    z-index: 1;
+}
+
+.expanded {
+    z-index: 1;
+}
+
+.eventCard {
+    order: 1;
+    font-weight: 200;
+    background: var(--bColor);
+}
+
+.eventCard p {
+    white-space: pre-wrap;
+}
+
+.eventCard:hover {
+    filter: brightness(110%);
+}
+
+.listCard {
+    border-radius: 0.5ex;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 1ex;
+    padding: 1ex;
+}
+
+.listCard div {
+    display: flex;
+    justify-content: space-between;
+}
+.listCard span:first-of-type {
+    font-size: larger;
+    font-weight: 600;
+}
+
+.listCard p {
+    background: linear-gradient();
+    border-radius: inherit;
+    box-shadow: 0 0 0.5ex black;
+    padding: 0.5ex 1ex;
+}
+
+.hourCard {
+    position: absolute;
+    display: flex;
+    height: 100%;
+    width: calc(2 * var(--sL));
+    border-radius: inherit;
+    padding: 0.5ex;
+    padding-left: 0.75ex;
+    font-weight: 600;
+    overflow: hidden;
+    outline: 0.5ex solid transparent;
+    transition: outline-color 1s ease-in-out, height 0.5s ease-in-out;
+}
+
+.hourCard p {
+    color: #2c302e;
+    white-space: pre;
+    overflow: hidden;
+    width: 100%;
+}
+
+.clamp .hourCard p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    align-self: center;
+}
+
+.showNewEvent {
+    outline-color: var(--accentC);
+}
+
+#dayView[group-expanded="true"] > *:not(#hourGrid, .expanded) {
+    filter: blur(0.75px) grayscale(50%);
+}
+
+.expanded > * {
+    outline: 0.5ex slateblue solid;
+    box-shadow: 0 0 2ex rgba(0, 0, 0, 0.75);
+}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bso.css">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js" defer></script>
+    <script src="bso.js" type="module"></script>
+</head>
+<body>   
+    <div class="summary">
+        <div id="calendar">
+            <div id="month" class="card header">
+                <span id="monthText"></span>
+                <div class="nav">
+                    <div></div>
+                    <button type="button" id="prevMonth">P</button>
+                    <button type="button" id="nextMonth">N</button>
+                    <button type="button" id="addEventButton">+</button>
+                </div>
+            </div>
+            <div class="monthDays card">
+            </div>
+        </div>
+        <div id="expansion" class="card">
+            <div class="header">
+                <span>Timeline</span>
+                <div class="nav">
+                    <div></div>
+                    <button type="button" id="list">list</button>
+                    <button type="button" id="day">day</button>
+                    <button type="button" id="week">week</button>
+                </div>
+            </div>
+            <div class="view">
+            </div>
+        </div>
+    </div>
+    <!-- done -->
+    <div id="newCalendarEvent" class="card">
+        <svg id="submitExit" viewBox="0 0 200 160">
+            <path d="m 200 70 h -160 a 40 40 0 0 0 0 80 h 80 v -160"></path>
+        </svg>
+        <label for="eventName">name</label>
+        <input type="text" id="eventName">
+        <label for="eventTime">time</label>
+        <input type="time" id="eventTime">
+        <label for="eventVenue">venue</label>
+        <input type="text" id="eventVenue">
+        <label for="eventDescription">description</label>
+        <input type="text" id="eventDescription">
+        <label for="eventColor">Picker</label>
+        <input type="color" id="eventColor" value="#ff8020">
+    </div>
+</body>
+</html>
