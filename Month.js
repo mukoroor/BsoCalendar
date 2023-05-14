@@ -27,7 +27,7 @@ export default class Month extends UI {
                 this.addDay(i, new Day(i))
             }
         }
-        this.addClass(["monthDays", "card"])
+        this.getElement().classList.add("monthDays", "card")
     }
 
     addDay(dayNum, day) {

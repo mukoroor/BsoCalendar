@@ -21,6 +21,14 @@ export default class CalendarEvent {
         return this.#time
     }
 
+    getHour() {
+        return Math.floor(this.#time.replace(":", "") / 100)
+    }
+
+    getMinute() {
+        return Math.floor(this.#time.replace(":", "") % 100)
+    }
+
     setTime(newTime) {
         this.#time = newTime
     }
@@ -68,44 +76,4 @@ export default class CalendarEvent {
         }
         return diff
     }
-    
-    
-
-    // static setInfoPriority(newInfoPriority) {
-    //     CalendarEvent.infoPriority = newInfoPriority
-    //     CalendarEvent.calendarEventMap.forEach((calendarEvent, htmlElement) => {
-    //         htmlElement.dispatchEvent(CalendarEvent.infoChanged)
-    //     });
-    // }
-
-
-    // static groupEvents(eventDivsContainer) {
-    //     const eDivs = [...eventDivsContainer.querySelectorAll(".event")]
-    //     const arr = []
-    //     let prevHour = -1
-    //     let subArr = []
-
-    //     for (let i = 0; i < eDivs.length; i++) {
-    //         const c = CalendarEvent.calendarEventMap.get(eDivs[i])
-    //         const time = c.info[2].split(":")
-    //         const currHour = +time[0]
-            
-    //         if (currHour !== prevHour) {
-    //             if (subArr.length) {
-    //                 arr.push(subArr)
-    //             }
-    //             subArr = [c]
-    //             prevHour = currHour
-    //         } else {
-    //             subArr.push(c)
-    //         }
-    //         subArr.hour = currHour
-    //     }
-
-    //     if (subArr.length) {
-    //         arr.push(subArr)
-    //     }
-
-    //     return arr
-    // }
 }

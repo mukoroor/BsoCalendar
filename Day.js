@@ -34,12 +34,12 @@ export default class Day extends UI {
         this.#dayNumber = dayNumber
         this.#calendarEventUITree = new AvlTree(CalendarEventUI.compare, undefined)
 
-        this.addClass(["day"])
         const dayNumContainer = document.createElement("div")
-        dayNumContainer.textContent = dayNumber
         const eventsContainer = document.createElement("div")
+        dayNumContainer.textContent = dayNumber
+        this.getElement().classList.add("day")
         this.getElement().append(dayNumContainer, eventsContainer)
-        this.addEventListener("click", () => {
+        this.getElement().addEventListener("click", () => {
             this.moveFocusBlock()
         })
     }
@@ -72,8 +72,18 @@ export default class Day extends UI {
         return arr
     }
 
-    getCountCalendarEventUIs() {
-        return this.#calendarEventUITree.count()
+    groupByHour() {
+        const eventsByHour = new Map();
+        const events =  this.getAllCalendarEventUIs()
+        for (const event of events) {
+            const hour = event.getCalendarEvent().getHour()
+            if (eventsByHour.has(hour)) {
+                eventsByHour.get(hour).push(event);
+            } else {
+                eventsByHour.set(hour, [event]);
+            }
+        }
+        return eventsByHour
     }
 
     moveFocusBlock() { 

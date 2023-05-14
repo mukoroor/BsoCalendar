@@ -12,10 +12,10 @@ export default class CalendarEventUI extends UI {
         super()
         this.#calendarEvent = new CalendarEvent(map)
 
-        this.addClass(["event"])
         this.setDisplayedText()
-        this.setBGColor(map.get("color"))
-        this.addEventListener("infoChanged", this.setDisplayedText)
+        this.getElement().classList.add("event")
+        this.getElement().style.backgroundColor = map.get("color");
+        this.getElement().addEventListener("infoChanged", this.setDisplayedText)
         this.getElement().setAttribute("title", this.#calendarEvent.getName())
     }
 
@@ -91,12 +91,48 @@ export default class CalendarEventUI extends UI {
         this.getElement().textContent = this.#calendarEvent.getSummarizedData(); 
     }
 
-    setBGColor(color) {
-        this.getElement().style.backgroundColor = color;
-    }
-
     static compare(a, b) {
         return CalendarEvent.compare(a.getCalendarEvent(), b.getCalendarEvent())
     }
+
+
+    
+    // static setInfoPriority(newInfoPriority) {
+    //     CalendarEvent.infoPriority = newInfoPriority
+    //     CalendarEvent.calendarEventMap.forEach((calendarEvent, htmlElement) => {
+    //         htmlElement.dispatchEvent(CalendarEvent.infoChanged)
+    //     });
+    // }
+
+
+    // static groupEvents(eventDivsContainer) {
+    //     const eDivs = [...eventDivsContainer.querySelectorAll(".event")]
+    //     const arr = []
+    //     let prevHour = -1
+    //     let subArr = []
+
+    //     for (let i = 0; i < eDivs.length; i++) {
+    //         const c = CalendarEvent.calendarEventMap.get(eDivs[i])
+    //         const time = c.info[2].split(":")
+    //         const currHour = +time[0]
+            
+    //         if (currHour !== prevHour) {
+    //             if (subArr.length) {
+    //                 arr.push(subArr)
+    //             }
+    //             subArr = [c]
+    //             prevHour = currHour
+    //         } else {
+    //             subArr.push(c)
+    //         }
+    //         subArr.hour = currHour
+    //     }
+
+    //     if (subArr.length) {
+    //         arr.push(subArr)
+    //     }
+
+    //     return arr
+    // }
 
 }

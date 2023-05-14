@@ -4,35 +4,25 @@ import Year from "./Year.js"
 import Month from "./Month.js"
 
 export default class Timeline extends UI {
+    static container = document.querySelector(".view")
     static timelineInstances = []
     static currTimelineIndex = 0
     static timelineChanged = false
-    #timelineElement
 
     constructor(id) {
         super()
-        document.querySelector(".view").append(this.getElement())
+        Timeline.container.append(this.getElement())
         this.getElement().id = id + "View"
         Timeline.timelineInstances.push(this)
     }
-    
-    getTimelineElement() {
-        return this.#timelineElement
-    }
 
-    setTimelineElement(newElement) {
-        this.#timelineElement = newElement
-    }
-
-    generateTimeline() {
-        if (this.#timelineElement) {
-            this.getElement().append(this.#timelineElement)
-            return 1
-        }
-        return 0
-    }
-    
     displayDetailedEvents() {}
+
+    clearElement(selector = ".eventCard") {
+        this.getElement().querySelectorAll(selector).forEach(element => {
+           this.getElement().removeChild(element)
+        })
+    }
 
     static resetTimelineChanged() {
         Timeline.timelineChanged = false
@@ -52,7 +42,6 @@ export default class Timeline extends UI {
             Timeline.timelineInstances[3 - index - Timeline.currTimelineIndex].getElement().style.zIndex = 0
             curr.getElement().style.zIndex = 1
             next.getElement().style.zIndex = 2
-            next.generateTimeline()
             gsap.fromTo(next.getElement(),
             {x: direction}, {x: 0, duration: 1, ease: "power3.out",
             onComplete: () => {
@@ -64,7 +53,6 @@ export default class Timeline extends UI {
             })
         } else {
             Timeline.timelineInstances[Timeline.currTimelineIndex].getElement().style.zIndex = Timeline.timelineInstances.length - 1
-            Timeline.timelineInstances[Timeline.currTimelineIndex].generateTimeline()
             Timeline.timelineInstances[Timeline.currTimelineIndex].displayDetailedEvents()
         }
     }
@@ -75,28 +63,19 @@ export class DayTimeline extends Timeline {
 
     constructor() {
         super("day")
-    }
-
-    generateTimeline() {
-        if (!super.generateTimeline()) {
-            const hourGrid = document.createElement("div")
-            hourGrid.id = "hourGrid"
-            let i = 0
-            while (i < 24) {
-                const hr = document.createElement("div")
-                hr.textContent = i++
-                hr.classList.add("hour")
-                hourGrid.append(hr)
-            }
-            this.setTimelineElement(hourGrid)
+        let i = 0
+        while (i < 24) {
+            const hr = document.createElement("div")
+            hr.textContent = i++
+            hr.classList.add("hour")
+            this.getElement().append(hr)
         }
-        this.getElement().prepend(this.getTimelineElement())
     }
     
     displayDetailedEvents() {
         let i = 2
         const parentElement = this.getElement()
-        const hourCalc = (event) => Math.floor(+event.getCalendarEvent().getTime().replace(":", "") / 100)
+        parentElement.classList.toggle("clamp", parentElement.children.length > 38)
         const expandGroup = (groupDiv) => {
             const timeline = gsap.timeline();
             const childElements = Array.from(groupDiv.children).slice(1)
@@ -119,7 +98,7 @@ export class DayTimeline extends Timeline {
             }
             
             childElements.forEach((child, i) => {
-                child.style.zIndex = 
+                child.style.zIndex = childElements.length - i
                 timeline.to(child, finalPos(groupDiv == this.#currExpanded ? ++i : 0))
             })
         }
@@ -135,18 +114,6 @@ export class DayTimeline extends Timeline {
                 hourDiv.append(event.getMinEventCard())
             })
             return hourDiv
-        }              
-        const groupByHour = (events) => {
-            const eventsByHour = new Map();
-            for (const event of events) {
-                const hour = hourCalc(event)
-                if (eventsByHour.has(hour)) {
-                    eventsByHour.get(hour).push(event);
-                } else {
-                    eventsByHour.set(hour, [event]);
-                }
-            }
-            return eventsByHour
         }
         const notify = (eventGroup, hourCard) => {
             hourCard.classList.add("showNewEvent")
@@ -157,8 +124,7 @@ export class DayTimeline extends Timeline {
             }, 500)
         }
         if (Timeline.timelineChanged) {
-            const events = Day.focus.currDay.getAllCalendarEventUIs()
-            const hourMap = groupByHour(events)
+            const hourMap = Day.focus.currDay.groupByHour()
             const timeline = gsap.timeline()
             for (const [hour, events] of hourMap.entries()) { 
                 const newGroup = createGroupHTML(hour, events)
@@ -168,17 +134,16 @@ export class DayTimeline extends Timeline {
                 timeline.from(newGroup, {x: "-3500%"})
             }
         } else if (Day.focus.newestEvent) {
-            let group = parentElement.firstElementChild.nextElementSibling
-            const hour = hourCalc(Day.focus.newestEvent)
+            let group = parentElement.querySelector(".eventGroup")
+            const hour = Day.focus.newestEvent.getCalendarEvent().getHour()
             while(group && group.getAttribute('title') < hour) {
                 group = group.nextElementSibling
                 i++
             }
-            parentElement.classList.toggle("clamp", parentElement.children.length > 15);
             
             Day.focus.newestEvent.setMinEventCard()
             if (group && group.getAttribute('title') == hour) {
-                const hourMap = groupByHour(Day.focus.currDay.getAllCalendarEventUIs())
+                const hourMap = Day.focus.currDay.groupByHour()
                 const siblings = hourMap.get(hour)
                 const index = siblings.indexOf(Day.focus.newestEvent) + 1
                 const minimized = Day.focus.newestEvent.getMinEventCard()
@@ -209,22 +174,20 @@ export class DayTimeline extends Timeline {
         }
         Timeline.resetTimelineChanged()
     }
+
+    clearElement() {
+        super.clearElement(".eventGroup")
+    }
 }
 
 export class ListTimeline extends Timeline {
     constructor() {
         super("list")
+        this.getElement().append(document.createElement("div"))
     }
-
-    generateTimeline() {
-        if (!super.generateTimeline()) {
-            this.setTimelineElement(document.createElement("div"))
-        }
-        this.getTimelineElement().textContent = new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toDateString()
-        this.getElement().append(this.getTimelineElement())
-    }
-
+    
     displayDetailedEvents() {
+        this.getElement().firstElementChild.textContent = new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toDateString()
         const events = Day.focus.currDay.getAllCalendarEventUIs()
         const timeline = gsap.timeline()
         for(const [i, currEvent] of events.entries()) {
