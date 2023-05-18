@@ -1,4 +1,5 @@
 import CalendarEvent from "./CalendarEvent.js"
+import Day from "./Day.js"
 import UI from "./UI.js"
 
 export default class CalendarEventUI extends UI {
@@ -51,25 +52,7 @@ export default class CalendarEventUI extends UI {
     
         this.#eventCard = eventCard
     
-        eventCard.addEventListener("click", () => {
-    
-            // if (!CalendarEvent.currDetailed) {
-            //     CalendarEvent.currDetailed = eventCard
-            // } else if (CalendarEvent.currDetailed !== eventCard) {
-            //     CalendarEvent.currDetailed.dispatchEvent(new Event("click"))
-            //     CalendarEvent.currDetailed = eventCard
-            // } else {
-            //     CalendarEvent.currDetailed = undefined
-            // }
-    
-            // const fullHeight = description.clientHeight + eventHeader.clientHeight
-            // if (eventCard.clientHeight < fullHeight) {
-            //     eventCard.style.height = `calc(${fullHeight}px + 0.75em)`
-            // } else {
-            //     eventCard.style.height = "" 
-            // }
-            // eventCard.classList.toggle("expanded") //i will come back later
-        }, false)
+        eventCard.addEventListener("dblclick", () => Day.focus.currDay.removeCalEventUI(eventCard))
     }
     
     setMinEventCard() {
@@ -81,7 +64,7 @@ export default class CalendarEventUI extends UI {
 
         minEventCard.classList.add("eventCard")
     
-        data.textContent = `${this.#calendarEvent.getName()}\n@ ${this.#calendarEvent.getVenue()}`
+        data.textContent = `${this.#calendarEvent.getName()}\n${this.#calendarEvent.getVenue()}`
         minEventCard.style.setProperty("--bColor", this.#calendarEvent.getColor())
 
         this.#minEventCard = minEventCard

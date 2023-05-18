@@ -80,12 +80,13 @@ function getRandomColor() {
   //   "#9C27B0", "#00E5FF", "#FFEB3B", "#FF9800", "#4CAF50", "#9E9E9E", "#4DB6AC", "#F50057", "#9C27B0", "#E91E63",
   //   "#536DFE", "#448AFF", "#FF8F00", "#FFC107", "#3F51B5", "#795548", "#0097A7", "#607D8B", "#FF5722", "#FF5252",
   //   "#4CAF50", "#FFEB3B", "#2196F3", "#F44336", "#03A9F4", "#FF1744", "#607D8B", "#E81D62"];
-  const colorList = [
-    "#87CEEB", "#98FF98", "#E6E6FA", "#FFDAB9", "#F08080",
-    "#FAFAD2", "#AFEEEE", "#FFA07A", "#E6A8D7", "#98FB98",
-    "#F0E68C", "#ADD8E6", "#FFB6C1", "#D3D3D3", "#FFE4B5",
-    "#B0C4DE", "#FFFACD", "#C0C0C0", "#FFD700", "#AFEEEE"
-  ];
+  // const colorList = [
+  //   "#87CEEB", "#98FF98", "#E6E6FA", "#FFDAB9", "#F08080",
+  //   "#FAFAD2", "#AFEEEE", "#FFA07A", "#E6A8D7", "#98FB98",
+  //   "#F0E68C", "#ADD8E6", "#FFB6C1", "#D3D3D3", "#FFE4B5",
+  //   "#B0C4DE", "#FFFACD", "#C0C0C0", "#FFD700", "#AFEEEE"
+  // ];
+  const colorList = generateColors(30)  
   
   let color = colorList[Math.floor(Math.random() * colorList.length)];
 
@@ -98,6 +99,60 @@ function getRandomColor() {
 
   return color;
 }
+
+function generateColors(numColors) {
+  const colors = [];
+  for (let i = 0; i < numColors; i++) {
+    const color = generateRandomColor();
+    colors.push(color);
+  }
+  return colors;
+}
+
+function generateRandomColor() {
+  const contrastThreshold = 128; // Adjust this value as needed
+  let color;
+  do {
+    color = getRandomHexColor();
+  } while (!hasGoodContrast(color, contrastThreshold));
+  return color;
+}
+
+function getRandomHexColor() {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function hasGoodContrast(color, contrastThreshold) {
+  const rgb = hexToRgb(color);
+  const brightness = calculateBrightness(rgb.r, rgb.g, rgb.b);
+  return Math.abs(brightness - 255) >= contrastThreshold;
+}
+
+function hexToRgb(hex) {
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+  hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+    return r + r + g + g + b + b;
+  });
+
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : null;
+}
+
+function calculateBrightness(r, g, b) {
+  return (r * 299 + g * 587 + b * 114) / 1000;
+}
+
 
 
   

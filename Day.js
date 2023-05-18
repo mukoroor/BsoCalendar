@@ -25,7 +25,7 @@ export default class Day extends UI {
         },
 
     }
-    static days = ['M', 'T', 'W', 'R', 'F', 'S', 'S']
+    // static days = ['M', 'T', 'W', 'R', 'F', 'S', 'S']
     #dayNumber
     #calendarEventUITree
 
@@ -60,6 +60,26 @@ export default class Day extends UI {
         Timeline.showTimeline()
         cUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
         
+    }
+
+    removeCalEventUI(element) {
+        const events = this.getAllCalendarEventUIs()
+        for (const event of events) {
+            const eventCard = event.getEventCard()
+            const minEventCard = event.getMinEventCard()
+
+            if (eventCard === element || minEventCard === element) {
+                if (eventCard) {
+                    gsap.to(eventCard, {scale: 0, onComplete: () => eventCard.parentNode?.removeChild(eventCard)})
+                }
+                if (minEventCard) {
+                    gsap.to(minEventCard, {scale: 0, onComplete: () => minEventCard.parentNode?.removeChild(minEventCard)})
+                }
+                gsap.to(event.getElement(), {scale: 0, onComplete: () => this.getElement().lastElementChild.removeChild(event.getElement())})
+                this.#calendarEventUITree.remove(event)
+                break
+            }
+        }
     }
 
     getDayNumber() {

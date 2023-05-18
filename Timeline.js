@@ -42,12 +42,14 @@ export default class Timeline extends UI {
             Timeline.timelineInstances[3 - index - Timeline.currTimelineIndex].getElement().style.zIndex = 0
             curr.getElement().style.zIndex = 1
             next.getElement().style.zIndex = 2
+            next.getElement().classList.toggle("showNewEvent")
             gsap.fromTo(next.getElement(),
             {x: direction}, {x: 0, duration: 1, ease: "power3.out",
             onComplete: () => {
                     curr.clearElement()
                     Timeline.currTimelineIndex = index
                     Timeline.timelineChanged = true
+                    next.getElement().classList.toggle("showNewEvent")
                     next.displayDetailedEvents()
                 }
             })
@@ -131,7 +133,7 @@ export class DayTimeline extends Timeline {
                 newGroup.style.gridRowStart = i++
                 newGroup.style.gridColumnStart = hour + 1
                 parentElement.append(newGroup)
-                timeline.from(newGroup, {x: "-3500%"})
+                timeline.from(newGroup, {opacity: 0, x: "-100%"})
             }
         } else if (Day.focus.newestEvent) {
             let group = parentElement.querySelector(".eventGroup")
@@ -168,7 +170,7 @@ export class DayTimeline extends Timeline {
                     group = group.nextElementSibling
                 }
                 notify(newGroup, newGroup.firstElementChild)
-                gsap.from(newGroup, {x: "-3500%", ease: "power3.out"})
+                gsap.from(newGroup, {opacity: 0, x: "-100%", ease: "power3.out"})
             }
             Day.focus.newestEvent = null
         }

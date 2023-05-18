@@ -45,6 +45,7 @@ export default class Month extends UI {
         Day.focus.currDay = this.#dayMap.get(focusedDayNum) 
         Day.focus.setPos(...Object.values(Day.focus.calcNewPos()), true)
         Timeline.timelineInstances[Timeline.currTimelineIndex].clearElement()
+        Timeline.timelineChanged = true
         Timeline.showTimeline()
     }
 
