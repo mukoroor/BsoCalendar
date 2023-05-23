@@ -1,28 +1,28 @@
-export default function generateRandomEventData() {
-    const eventName = generateRandomEventName();
-    const eventDescription = generateRandomEventDescription();
-    const eventTime = generateRandomEventTime();
-    const eventVenue = generateRandomEventVenue();
-    const eventColor = getRandomColor();
-  
-    return {
-      eventName,
-      eventDescription,
-      eventTime,
-      eventVenue,
-      eventColor
-    };
+export default function generateRandomEventData(maxEventNameLength = 28, minDescriptionWords = 1, maxDescriptionWords = 9) {
+  const eventName = generateRandomEventName(maxEventNameLength);
+  const eventDescription = generateRandomEventDescription(minDescriptionWords, maxDescriptionWords);
+  const eventTime = generateRandomEventTime();
+  const eventVenue = generateRandomEventVenue();
+  const eventColor = getRandomColor();
+
+  return {
+    eventName,
+    eventDescription,
+    eventTime,
+    eventVenue,
+    eventColor
+  };
 }
 
-function generateRandomEventName() {
+function generateRandomEventName(maxLength) {
   const prefixes = ["Annual", "Weekly", "Monthly", "Bi-Annual", "Charity", "Fundraiser", "Gala", "Networking", "Social", "Corporate"];
   const topics = ["Conference", "Workshop", "Seminar", "Meeting", "Retreat", "Concert", "Exhibition", "Webinar", "Panel Discussion", "Training Session"];
   const suffixes = ["2023", "2024", "Spring Edition", "Summer Edition", "Fall Edition", "Winter Edition", "Global", "Local", "Regional", "National"];
-  const name = `${pickRandom(prefixes)} ${pickRandom(topics)} ${pickRandom(suffixes)}`;
+  const name = `${pickRandom(prefixes)} ${pickRandom(topics)} ${pickRandom(suffixes)}`.substring(0, maxLength);
   return name;
 }
 
-function generateRandomEventDescription() {
+function generateRandomEventDescription(minWords, maxWords) {
   const descriptions = [
     "Join us for a day of networking and learning from industry leaders in a variety of fields.",
     "This is a can't-miss event for anyone interested in the latest trends and technologies in their field.",
@@ -34,9 +34,15 @@ function generateRandomEventDescription() {
     "Get a head start on your career by attending our training session with industry experts.",
     "This is a great opportunity to meet like-minded individuals and make valuable connections."
   ];
-  const description = `${pickRandom(descriptions)} ${pickRandom(descriptions)} ${pickRandom(descriptions)} ${pickRandom(descriptions)} ${pickRandom(descriptions)}`;
+
+  const numWords = getRandomNumberBetween(minWords, maxWords);
+  const selectedDescriptions = Array.from({ length: numWords }, () => pickRandom(descriptions));
+  const description = selectedDescriptions.join(" ");
   return description;
 }
+
+// Rest of the code...
+
 
 function generateRandomEventTime() {
   const hours = padNumberWithZero(getRandomNumberBetween(0, 23), 2);
