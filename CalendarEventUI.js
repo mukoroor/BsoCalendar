@@ -6,6 +6,7 @@ export default class CalendarEventUI extends UI {
     #eventCard
     #calendarEvent
     #minEventCard
+    #starred = false
     static priorityData = "time" //indicates which info index is prioritized to be shown after name
     static infoChanged = new Event("infoChanged") // event listener for change in infoPriority
 
@@ -13,9 +14,27 @@ export default class CalendarEventUI extends UI {
         super()
         this.#calendarEvent = new CalendarEvent(map)
 
+        const displayedText = document.createElement("span")
+        const star = document.createElement("span")
+
+        star.classList.add("material-symbols-rounded", "star")
+
+        star.textContent = "star"
+        star.setAttribute("boolean", this.#starred)
+        star.addEventListener("click", () => {
+            Day.focus.currDay.getTree().remove(this)
+            star.setAttribute("boolean", this.#starred = !this.#starred)
+            Day.focus.currDay.getTree().insert(this)
+            Day.focus.currDay.updateDisplayOrder()
+            this.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
+
+        })
+
+        this.getElement().append(displayedText, star)
+
         this.setDisplayedText()
         this.getElement().classList.add("event")
-        this.getElement().style.backgroundColor = map.get("color");
+        this.getElement().style.backgroundColor = map.get("color")
         this.getElement().addEventListener("infoChanged", this.setDisplayedText)
         this.getElement().setAttribute("title", this.#calendarEvent.getName())
     }
@@ -71,14 +90,22 @@ export default class CalendarEventUI extends UI {
     }
 
     setDisplayedText() {
-        this.getElement().textContent = this.#calendarEvent.getSummarizedData(); 
+        this.getElement().firstElementChild.textContent = this.#calendarEvent.getSummarizedData(); 
     }
 
     static compare(a, b) {
-        return CalendarEvent.compare(a.getCalendarEvent(), b.getCalendarEvent())
+        if (a.isStarred() === b.isStarred()) {
+            return CalendarEvent.compare(a.getCalendarEvent(), b.getCalendarEvent())
+        } else if (a.isStarred()) {
+            return -1
+        } else {
+            return 1
+        }
     }
 
-
+    isStarred() {
+        return this.#starred
+    }
     
     // static setInfoPriority(newInfoPriority) {
     //     CalendarEvent.infoPriority = newInfoPriority

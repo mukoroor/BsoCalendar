@@ -12,7 +12,7 @@
     cursor: default;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: var(--textColor);
+    color: rgb(var(--textColor));
 }
 
 
@@ -25,11 +25,12 @@ body {
     /* light */
     
     --bG: #909590;
+    --bG: white ;
     --primaryC: #2c302e;
     --secondaryC:71, 74, 72;
     --tertiaryC: #42634D;
-    --accentC: #ff435f;
-    --textColor: white;
+    --accentC: 255, 67, 95;
+    --textColor: 255, 255, 255;
     /* dark */
     /* --bG: #FFF7FB;
     --primaryC: white;
@@ -69,7 +70,7 @@ input {
     opacity: 0;
 } */
 
-#calendar, #newCalendarEvent, .header, .nav, .summary, .timeline, .detailed div {
+#calendar, #newCalendarEvent, .header, .summary, .timeline, .detailed div, .nav > * {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -89,10 +90,11 @@ input {
     padding: var(--pGap);
     border-radius: 0.75vmax;
     filter: drop-shadow(0 0 calc(0.5 * var(--pGap)) rgb(105, 105, 105));
+    /* filter: drop-shadow(0 0 calc(0.5 * var(--pGap)) black); */
 }
 
 .header {
-    /* padding: 1vmax; */
+    padding-left: 1vmax;
     font-size: 2em;
     font-weight: 600;
 }
@@ -125,25 +127,22 @@ input {
 }
 
 #month {
+    display: grid;
+    align-content: center;
     flex: 1 1 calc(0.5 * var(--sL));
 }
 
 .monthDays {
-    flex-shrink: 10;
-    flex-grow: 10;
-    --gap: calc(0.02 * var(--sL));
+    --gap: calc(0.025 * var(--sL));
     position: relative;
     display: grid;
     gap: var(--gap);
     grid-template-columns: repeat(7, var(--sL));
     grid-template-rows: repeat(5, var(--sL));
-    /* font-size: calc(0.1 * var(--sL)); */
 }
 
 .monthDays > * {
-    width: var(--sL);
-    height: var(--sL);
-    border-radius: var(--gap);
+    border-radius: 0.25vmax;
 }
 
 .day {
@@ -173,7 +172,7 @@ input {
     background: linear-gradient(to bottom, transparent, rgba(var(--secondaryC), 0.75));
 }
 
-.day div:first-of-type {
+.day > div:first-of-type {
     height: var(--h);
     line-height: 100%;
     padding: 0.5em 0.5em 0;
@@ -197,9 +196,42 @@ input {
     margin-top: 0.5vmax;
 }
 
+#dataPanel {
+    /* gap: var(--pGap); */
+    align-items: stretch;
+    display: grid;
+    /* grid-auto-flow: column; */
+    grid-template-columns: 1fr minmax(0, 3fr);
+    grid-column: 5/-1;
+    background: var(--tertiaryC);
+    background-clip: content-box;
+    margin: 0.1vmax 0 0 0.1vmax;
+    border-top-left-radius: 0.15vmax;
+    border-top-right-radius: 0.15vmax 0.25vmax;
+    border-bottom-left-radius: 0.25vmax 0.15vmax;
+    border-bottom-right-radius: 0.5vmax;
+    /* border-radius: 0.15vmax 0.15vmax / 0.25vmax 0.25vmax 0.25vmax / 0.15vmax; */
+}
+
+#dataPanel > * {
+    margin: calc(var(--pGap) / 2);
+}
+
+#dataPanel span {
+    text-align: center;
+    font-size: 3em;
+    font-weight: 500;
+    background: blue;
+    border-radius: 5%;
+    display: inline-flex;
+    align-items: center;
+}
+
 #focus {
     --a: 0;
     position: absolute;
+    width: var(--sL);
+    height: var(--sL);
     margin: var(--pGap);
     transform-origin: center;
 }
@@ -237,7 +269,7 @@ input {
 }
 
 #today {
-    background: var(--accentC);
+    background: rgb(var(--accentC));
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
 }
@@ -263,10 +295,20 @@ input {
 
 .event {
     padding: 0.075em 0.2em;
-    flex-shrink: 0;
-    overflow: hidden;
-    display: inline-block;
+    display: grid;
+    grid-template-columns: 1fr min-content;
     border-radius: 0.2em;
+}
+
+.event span:first-child {
+    font-size: 0.85em;
+}
+
+.event .star {
+    font-size: 1.25em;
+    display: inline-flex;
+    justify-content: center;
+    align-items: end;
 }
 
 #submitExit {
@@ -280,7 +322,7 @@ input {
 }
 
 #submitExit path {
-    stroke: var(--textColor);
+    stroke: rgb(var(--textColor));
     stroke-width: 30;
     stroke-linejoin: round;
     stroke-linecap: round;
@@ -300,11 +342,9 @@ input {
     gap: var(--pGap);
 }
 
-#expansion .header {
-    /* height: calc(var(--sL) / 2); */
-}
-
 .nav {
+    display: grid;
+    grid-auto-flow: column;
     position: relative;
     padding: 0 var(--pGap);
     gap: var(--pGap);   
@@ -314,23 +354,26 @@ input {
     position: relative;
     line-height: 100%;
     z-index: 1;
-    width: 2vmax;
+    width: 1.5vmax;
     height: 1vmax;
 }
 
-.nav div {
+#month .nav > * {
+    width: auto;
+}
+
+#expansion .nav div {
     position: absolute;
     left: var(--pGap);
-    transform: scale(1.25);
+    transform: scale(1.5);
     transform-origin: center;
-    background: var(--accentC);
-    border-radius: 10%/20%;
+    background: rgb(var(--accentC));
+    border-radius: 15%/20%;
 }
 
 .view {
     position: relative;
     background: inherit;
-    /* font-size: 12px; */
 }
 
 .view > * {
@@ -338,7 +381,7 @@ input {
     height: 100%;
     width: 100%;
     overflow: auto;
-    filter: drop-shadow(0 0 calc(var(--pGap) / 4) rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 0 calc(var(--pGap) / 4) rgba(0, 0, 0, 0.3));
     border-radius: 0.25vmax;
     position: absolute;
     background: inherit;
@@ -347,35 +390,36 @@ input {
     transition: outline-color 1s ease-in-out, height 0.5s ease-in-out;
 }
 
-#listView {
+#list {
     display: flex;
     flex-direction: column;
     gap: var(--pGap);
 }
 
-#listView > div:first-child {
+/* #list > div:first-child {
     font-size: 2em;
     line-height: 100%;
     font-weight: 800;
     padding: 0.5ex 0.5ex 0;
     border-bottom: 1px solid white;
-}
+} */
 
-#dayView {
+#day {
     display: grid;
     gap: 1% 0;
+    overflow-y: hidden;
     grid-template-rows: [hours] 1lh;
     grid-template-columns: repeat(24, min-content);
 }
 
-#weekView {
+#week {
     --dayWidth: calc(0.5 * var(--sL));
 }
 
 .hour {
     text-align: center;
     position: relative;
-    width: calc(1 * var(--sL));
+    width: var(--sL);
 }
 
 .hour::after {
@@ -383,10 +427,10 @@ input {
     content: "";
     z-index: -1;
     left: 0;
-    height: calc(100vh - var(--sL) / 2 - (7 * var(--pGap)));
+    height: calc(100vh);
     width: 100%;
     border-left: 1px dashed rgba(255, 255, 255, 0.415);
-    background: repeating-linear-gradient(to right, transparent 0 25%, rgba(var(--secondaryC), 0.5) 25% 50%);
+    background: repeating-linear-gradient(to right, rgba(var(--secondaryC), 0.5) 0 25%, transparent 25% 50%);
 }
 
 .eventGroup {
@@ -405,9 +449,9 @@ input {
     width: 3ex;
     line-height: 3ex;
     text-align: center;
-    transform: translate(25%, -25%);
+    transform: translate(55%, -40%);
     border-radius: 50%;
-    background-color: var(--accentC);
+    background-color: rgb(var(--accentC));
 }
 
 .eventGroup > div:first-child {
@@ -473,6 +517,7 @@ input {
     border-radius: inherit;
     padding: 0.5ex;
     padding-left: 0.75ex;
+    font-size: 0.75em;
     font-weight: 600;
     overflow: hidden;
     outline: 0.5ex solid transparent;
@@ -480,7 +525,7 @@ input {
 }
 
 .hourCard p {
-    white-space: pre;
+    /* white-space: pre; */
     overflow: hidden;
     width: 100%;
 }
@@ -493,7 +538,7 @@ input {
 }
 
 .showNewEvent {
-    outline-color: var(--accentC);
+    outline-color: rgb(var(--accentC));
 }
 
 #dayView[group-expanded="true"] > *:not(.hour, .expanded) {
@@ -504,3 +549,35 @@ input {
     outline: 0.5ex slateblue solid;
     box-shadow: 0 0 2ex rgba(0, 0, 0, 0.75);
 }
+
+#expansion .material-symbols-rounded {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 300,
+  'GRAD' 200,
+  'opsz' 48
+}
+
+.material-symbols-rounded.star[boolean="true"] {
+    font-variation-settings:
+  'FILL' 1,
+  'wght' 150,
+  'GRAD' 200,
+  'opsz' 48;
+    color: gold;
+}
+
+.material-symbols-rounded.star[boolean="false"] {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 150,
+    'GRAD' 200,
+    'opsz' 48;
+    color: transparent;
+    transition: color 0.25s;
+}
+
+.material-symbols-rounded.star[boolean="false"]:hover {
+    color: rgba(var(--textColor), 0.6);
+} 
+

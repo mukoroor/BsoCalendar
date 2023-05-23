@@ -1,16 +1,26 @@
 import AvlTree from "./node_modules/@datastructures-js/binary-search-tree/src/avlTree.js"
 import CalendarEventUI from "./CalendarEventUI.js"
 import Timeline from "./Timeline.js"
+import Year from "./Year.js"
+import Month from "./Month.js"
 import UI from "./UI.js"
 
 export default class Day extends UI {
     static focus = {
         block: document.createElement("div"),
+        dataPanel: document.createElement("div"),
         currDay: null,
         newestEvent: null,
+        setData() {
+            this.dataPanel.firstElementChild.textContent = 
+                new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toLocaleString("en-US", { weekday: 'short' })
+            this.dataPanel.style.gridColumnStart = Month.dayCounts[Month.monthIndex] % 7 + 1
+            this.dataPanel.lastElementChild.textContent = this.currDay.getEventArray().length
+        },
+
         calcNewPos(dayNum = this.currDay.getDayNumber()) {
-            const x = 1.02 * 8 * ((dayNum - 1) % 7)
-            const y = 1.02 * 8 * (Math.floor((dayNum - 1) / 7))
+            const x = 1.025 * 8 * ((dayNum - 1) % 7)
+            const y = 1.025 * 8 * (Math.floor((dayNum - 1) / 7))
             return {x, y}
         },
         
@@ -25,7 +35,6 @@ export default class Day extends UI {
         },
 
     }
-    // static days = ['M', 'T', 'W', 'R', 'F', 'S', 'S']
     #dayNumber
     #calendarEventUITree
 
@@ -47,15 +56,15 @@ export default class Day extends UI {
     addCalEventUI(map) {
         const cUI = new CalendarEventUI(map)
         this.#calendarEventUITree.insert(cUI)
-        map.set("time", map.get("time") + ".9")
         const successor = this.#calendarEventUITree.upperBound(new CalendarEventUI(map))
         const flex = this.getElement().lastElementChild
-        if (successor) {
+        if (successor && successor.getValue() !== cUI) {
             flex.insertBefore(cUI.getElement(), successor.getValue().getElement());
         } else {
             flex.append(cUI.getElement());
         }
         Day.focus.newestEvent = cUI
+        Day.focus.setData()
         gsap.from(cUI.getElement(), {opacity: 0, duration: 2})
         Timeline.showTimeline()
         cUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
@@ -63,7 +72,7 @@ export default class Day extends UI {
     }
 
     removeCalEventUI(element) {
-        const events = this.getAllCalendarEventUIs()
+        const events = this.getEventArray()
         for (const event of events) {
             const eventCard = event.getEventCard()
             const minEventCard = event.getMinEventCard()
@@ -80,13 +89,18 @@ export default class Day extends UI {
                 break
             }
         }
+        Day.focus.setData()
     }
 
     getDayNumber() {
         return this.#dayNumber
     }
 
-    getAllCalendarEventUIs() {
+    getTree() {
+        return this.#calendarEventUITree
+    }
+
+    getEventArray() {
         const arr = []
         this.#calendarEventUITree.traverseInOrder((node) => arr.push(node.getValue()), undefined)
         return arr
@@ -94,7 +108,7 @@ export default class Day extends UI {
 
     groupByHour() {
         const eventsByHour = new Map();
-        const events =  this.getAllCalendarEventUIs()
+        const events =  this.getEventArray()
         for (const event of events) {
             const hour = event.getCalendarEvent().getHour()
             if (eventsByHour.has(hour)) {
@@ -111,12 +125,14 @@ export default class Day extends UI {
         Day.focus.currDay = this
         const newPos = Day.focus.calcNewPos()
         Day.focus.setPos(newPos.x, newPos.y)
+        Day.focus.setData()
+        console.log("passed")
         if (newPos.x == pos.x && newPos.y == pos.y) {
             return
         }
         const timeline = gsap.timeline()
         if(newPos.x != pos.x && newPos.y != pos.y) {
-            if ((pos.y > 24 * 1.02 || pos.y > pos.x && newPos.y < 24 * 1.02)) {
+            if ((pos.y > 24 * 1.025 || pos.y > pos.x && newPos.y < 24 * 1.025)) {
                 timeline.to(Day.focus.block, {y: `${newPos.y}vmax`, ease: "power3.out"})
                 timeline.to(Day.focus.block, {x: `${newPos.x}vmax`, ease: "power3.out"})
             } else {
@@ -131,8 +147,14 @@ export default class Day extends UI {
         Timeline.showTimeline()
     }
 
+    updateDisplayOrder() {
+        this.getElement().lastElementChild.replaceChildren(...this.getEventArray().map(cUI => cUI.getElement()))
+    }
+
     static init(date) {
         Day.focus.block.id = "focus"
+        Day.focus.dataPanel.id = "dataPanel"
+        Day.focus.dataPanel.append(document.createElement("span"), document.createElement("div"))
         const pos = Day.focus.calcNewPos(date.getDate())
         Day.focus.setPos(pos.x, pos.y, true)
     }

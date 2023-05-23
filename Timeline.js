@@ -12,7 +12,7 @@ export default class Timeline extends UI {
     constructor(id) {
         super()
         Timeline.container.append(this.getElement())
-        this.getElement().id = id + "View"
+        this.getElement().id = id
         Timeline.timelineInstances.push(this)
     }
 
@@ -77,7 +77,7 @@ export class DayTimeline extends Timeline {
     displayDetailedEvents() {
         let i = 2
         const parentElement = this.getElement()
-        parentElement.classList.toggle("clamp", parentElement.children.length > 38)
+        parentElement.classList.toggle("clamp", parentElement.children.length > 36)
         const expandGroup = (groupDiv) => {
             const timeline = gsap.timeline();
             const childElements = Array.from(groupDiv.children).slice(1)
@@ -185,12 +185,10 @@ export class DayTimeline extends Timeline {
 export class ListTimeline extends Timeline {
     constructor() {
         super("list")
-        this.getElement().append(document.createElement("div"))
     }
     
     displayDetailedEvents() {
-        this.getElement().firstElementChild.textContent = new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toDateString()
-        const events = Day.focus.currDay.getAllCalendarEventUIs()
+        const events = Day.focus.currDay.getEventArray()
         const timeline = gsap.timeline()
         for(const [i, currEvent] of events.entries()) {
             currEvent.setEventCard()
