@@ -44,7 +44,9 @@ export default class Month extends UI {
         const focusedDayNum = (this.#dayMap.has(currDayNum) ? currDayNum : 1)
         Day.focus.currDay = this.#dayMap.get(focusedDayNum) 
         Day.focus.setPos(...Object.values(Day.focus.calcNewPos()), true)
+        Day.focus.setData()
         Timeline.timelineInstances[Timeline.currTimelineIndex].clearElement()
+        Timeline.timelineChanged = true
         Timeline.showTimeline()
     }
 

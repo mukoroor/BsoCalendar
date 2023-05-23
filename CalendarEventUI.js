@@ -1,10 +1,12 @@
 import CalendarEvent from "./CalendarEvent.js"
+import Day from "./Day.js"
 import UI from "./UI.js"
 
 export default class CalendarEventUI extends UI {
     #eventCard
     #calendarEvent
     #minEventCard
+    #starred = false
     static priorityData = "time" //indicates which info index is prioritized to be shown after name
     static infoChanged = new Event("infoChanged") // event listener for change in infoPriority
 
@@ -12,9 +14,27 @@ export default class CalendarEventUI extends UI {
         super()
         this.#calendarEvent = new CalendarEvent(map)
 
+        const displayedText = document.createElement("span")
+        const star = document.createElement("span")
+
+        star.classList.add("material-symbols-rounded", "star")
+
+        star.textContent = "star"
+        star.setAttribute("boolean", this.#starred)
+        star.addEventListener("click", () => {
+            Day.focus.currDay.getTree().remove(this)
+            star.setAttribute("boolean", this.#starred = !this.#starred)
+            Day.focus.currDay.getTree().insert(this)
+            Day.focus.currDay.updateDisplayOrder()
+            this.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
+
+        })
+
+        this.getElement().append(displayedText, star)
+
         this.setDisplayedText()
         this.getElement().classList.add("event")
-        this.getElement().style.backgroundColor = map.get("color");
+        this.getElement().style.backgroundColor = map.get("color")
         this.getElement().addEventListener("infoChanged", this.setDisplayedText)
         this.getElement().setAttribute("title", this.#calendarEvent.getName())
     }
@@ -51,25 +71,7 @@ export default class CalendarEventUI extends UI {
     
         this.#eventCard = eventCard
     
-        eventCard.addEventListener("click", () => {
-    
-            // if (!CalendarEvent.currDetailed) {
-            //     CalendarEvent.currDetailed = eventCard
-            // } else if (CalendarEvent.currDetailed !== eventCard) {
-            //     CalendarEvent.currDetailed.dispatchEvent(new Event("click"))
-            //     CalendarEvent.currDetailed = eventCard
-            // } else {
-            //     CalendarEvent.currDetailed = undefined
-            // }
-    
-            // const fullHeight = description.clientHeight + eventHeader.clientHeight
-            // if (eventCard.clientHeight < fullHeight) {
-            //     eventCard.style.height = `calc(${fullHeight}px + 0.75em)`
-            // } else {
-            //     eventCard.style.height = "" 
-            // }
-            // eventCard.classList.toggle("expanded") //i will come back later
-        }, false)
+        eventCard.addEventListener("dblclick", () => Day.focus.currDay.removeCalEventUI(eventCard))
     }
     
     setMinEventCard() {
@@ -81,21 +83,29 @@ export default class CalendarEventUI extends UI {
 
         minEventCard.classList.add("eventCard")
     
-        data.textContent = `${this.#calendarEvent.getName()}\n@ ${this.#calendarEvent.getVenue()}`
+        data.textContent = `${this.#calendarEvent.getName()}\n${this.#calendarEvent.getVenue()}`
         minEventCard.style.setProperty("--bColor", this.#calendarEvent.getColor())
 
         this.#minEventCard = minEventCard
     }
 
     setDisplayedText() {
-        this.getElement().textContent = this.#calendarEvent.getSummarizedData(); 
+        this.getElement().firstElementChild.textContent = this.#calendarEvent.getSummarizedData(); 
     }
 
     static compare(a, b) {
-        return CalendarEvent.compare(a.getCalendarEvent(), b.getCalendarEvent())
+        if (a.isStarred() === b.isStarred()) {
+            return CalendarEvent.compare(a.getCalendarEvent(), b.getCalendarEvent())
+        } else if (a.isStarred()) {
+            return -1
+        } else {
+            return 1
+        }
     }
 
-
+    isStarred() {
+        return this.#starred
+    }
     
     // static setInfoPriority(newInfoPriority) {
     //     CalendarEvent.infoPriority = newInfoPriority

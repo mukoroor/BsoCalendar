@@ -12,7 +12,7 @@ export default class Timeline extends UI {
     constructor(id) {
         super()
         Timeline.container.append(this.getElement())
-        this.getElement().id = id + "View"
+        this.getElement().id = id
         Timeline.timelineInstances.push(this)
     }
 
@@ -42,12 +42,14 @@ export default class Timeline extends UI {
             Timeline.timelineInstances[3 - index - Timeline.currTimelineIndex].getElement().style.zIndex = 0
             curr.getElement().style.zIndex = 1
             next.getElement().style.zIndex = 2
+            next.getElement().classList.toggle("showNewEvent")
             gsap.fromTo(next.getElement(),
             {x: direction}, {x: 0, duration: 1, ease: "power3.out",
             onComplete: () => {
                     curr.clearElement()
                     Timeline.currTimelineIndex = index
                     Timeline.timelineChanged = true
+                    next.getElement().classList.toggle("showNewEvent")
                     next.displayDetailedEvents()
                 }
             })
@@ -75,7 +77,7 @@ export class DayTimeline extends Timeline {
     displayDetailedEvents() {
         let i = 2
         const parentElement = this.getElement()
-        parentElement.classList.toggle("clamp", parentElement.children.length > 38)
+        parentElement.classList.toggle("clamp", parentElement.children.length > 36)
         const expandGroup = (groupDiv) => {
             const timeline = gsap.timeline();
             const childElements = Array.from(groupDiv.children).slice(1)
@@ -131,7 +133,7 @@ export class DayTimeline extends Timeline {
                 newGroup.style.gridRowStart = i++
                 newGroup.style.gridColumnStart = hour + 1
                 parentElement.append(newGroup)
-                timeline.from(newGroup, {x: "-3500%"})
+                timeline.from(newGroup, {opacity: 0, x: "-100%"})
             }
         } else if (Day.focus.newestEvent) {
             let group = parentElement.querySelector(".eventGroup")
@@ -168,7 +170,7 @@ export class DayTimeline extends Timeline {
                     group = group.nextElementSibling
                 }
                 notify(newGroup, newGroup.firstElementChild)
-                gsap.from(newGroup, {x: "-3500%", ease: "power3.out"})
+                gsap.from(newGroup, {opacity: 0, x: "-100%", ease: "power3.out"})
             }
             Day.focus.newestEvent = null
         }
@@ -183,12 +185,10 @@ export class DayTimeline extends Timeline {
 export class ListTimeline extends Timeline {
     constructor() {
         super("list")
-        this.getElement().append(document.createElement("div"))
     }
     
     displayDetailedEvents() {
-        this.getElement().firstElementChild.textContent = new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toDateString()
-        const events = Day.focus.currDay.getAllCalendarEventUIs()
+        const events = Day.focus.currDay.getEventArray()
         const timeline = gsap.timeline()
         for(const [i, currEvent] of events.entries()) {
             currEvent.setEventCard()

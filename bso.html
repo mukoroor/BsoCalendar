@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="bso.css">
     <title>Document</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js" defer></script>
@@ -12,13 +13,14 @@
 <body>   
     <div class="summary">
         <div id="calendar">
-            <div id="month" class="card header">
-                <span id="monthText"></span>
-                <div class="nav">
-                    <div></div>
-                    <button type="button" id="prevMonth">P</button>
-                    <button type="button" id="nextMonth">N</button>
-                    <button type="button" id="addEventButton">+</button>
+            <div id="month" class="card">
+                <div class="header">
+                    <span id="monthText"></span>
+                    <div class="nav">
+                        <button type="button" id="prevMonth" class="material-symbols-rounded">arrow_back_ios</button>
+                        <button type="button" id="nextMonth" class="material-symbols-rounded">arrow_forward_ios</button>
+                        <button type="button" id="addEventButton" class="material-symbols-rounded">add</button>
+                    </div>
                 </div>
             </div>
             <div class="monthDays card">
@@ -29,9 +31,9 @@
                 <span>Timeline</span>
                 <div class="nav">
                     <div></div>
-                    <button type="button" id="list">list</button>
-                    <button type="button" id="day">day</button>
-                    <button type="button" id="week">week</button>
+                    <button type="button" title="list" class="material-symbols-rounded">view_list</button>
+                    <button type="button" title="day" class="material-symbols-rounded">calendar_view_month</button>
+                    <button type="button" title="week" class="material-symbols-rounded">calendar_view_week</button>
                 </div>
             </div>
             <div class="view">

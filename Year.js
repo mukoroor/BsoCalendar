@@ -23,6 +23,7 @@ export default class Year {
         const days = curr.getElement()
 
         days.append(Day.focus.block)
+        days.append(Day.focus.dataPanel)
         curr.setFocusDay()    
         return {header, days}
     }
