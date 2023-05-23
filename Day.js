@@ -1,5 +1,6 @@
 import AvlTree from "./node_modules/@datastructures-js/binary-search-tree/src/avlTree.js"
 import CalendarEventUI from "./CalendarEventUI.js"
+import CalendarEvent from "./CalendarEvent.js"
 import Timeline from "./Timeline.js"
 import Year from "./Year.js"
 import Month from "./Month.js"
@@ -15,7 +16,29 @@ export default class Day extends UI {
             this.dataPanel.firstElementChild.textContent = 
                 new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toLocaleString("en-US", { weekday: 'short' })
             this.dataPanel.style.gridColumnStart = Month.dayCounts[Month.monthIndex] % 7 + 1
-            this.dataPanel.lastElementChild.textContent = this.currDay.getEventArray().length
+            const events = this.currDay.getEventArray()
+            if (!events.length) {
+                this.dataPanel.lastElementChild.textContent = "No events"
+                return
+            }
+            let starredCount = 0
+            for (const e of events) {
+                if (e.isStarred()) starredCount++ 
+                else break
+            }
+
+            let earliestTime, latestTime
+            if (starredCount && starredCount !== events.length) {
+                earliestTime = (CalendarEvent.compare(events[0].getCalendarEvent(), events[starredCount].getCalendarEvent()) < 0 ? 
+                events[0].getCalendarEvent().getTime(): events[starredCount].getCalendarEvent().getTime())
+                latestTime = (CalendarEvent.compare(events[events.length - 1].getCalendarEvent(), events[starredCount - 1].getCalendarEvent()) > 0 ? 
+                events[events.length - 1].getCalendarEvent().getTime(): events[starredCount - 1].getCalendarEvent().getTime())
+            } else {
+                earliestTime = events[0].getCalendarEvent().getTime()
+                latestTime = events[events.length - 1].getCalendarEvent().getTime()
+            }
+
+            this.dataPanel.lastElementChild.textContent = `Data\n⭐: ${starredCount}\nCount: ${events.length}\nFirst: ${earliestTime}\nLast: ${latestTime}`
         },
 
         calcNewPos(dayNum = this.currDay.getDayNumber()) {

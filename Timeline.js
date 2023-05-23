@@ -131,10 +131,11 @@ export class DayTimeline extends Timeline {
             for (const [hour, events] of hourMap.entries()) { 
                 const newGroup = createGroupHTML(hour, events)
                 newGroup.style.gridRowStart = i++
-                newGroup.style.gridColumnStart = hour + 1
+                newGroup.style.gridColumnStart = 4 * hour + 1
                 parentElement.append(newGroup)
-                timeline.from(newGroup, {opacity: 0, x: "-100%"})
+                timeline.from(newGroup, {opacity: 0})
             }
+            parentElement.querySelector(".eventGroup").scrollIntoView({ behavior: "smooth", block: "center"})
         } else if (Day.focus.newestEvent) {
             let group = parentElement.querySelector(".eventGroup")
             const hour = Day.focus.newestEvent.getCalendarEvent().getHour()
@@ -164,7 +165,7 @@ export class DayTimeline extends Timeline {
                     parentElement.appendChild(newGroup)
                 }
                 newGroup.style.gridRowStart = i++
-                newGroup.style.gridColumnStart = hour + 1
+                newGroup.style.gridColumnStart = 4 * hour + 1
                 while (group) {
                     group.style.gridRowStart = i++
                     group = group.nextElementSibling

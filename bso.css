@@ -215,16 +215,24 @@ input {
 
 #dataPanel > * {
     margin: calc(var(--pGap) / 2);
+    text-shadow: 0.1ex 0.1ex black;
+}
+
+#dataPanel div {
+    white-space: pre;
+    font-size: 1.2em;;
 }
 
 #dataPanel span {
-    text-align: center;
+    /* text-align: center; */
+    /* i want the background to be a canvas using collatz conjecutre */
     font-size: 3em;
     font-weight: 500;
     background: blue;
     border-radius: 5%;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
 }
 
 #focus {
@@ -305,10 +313,7 @@ input {
 }
 
 .event .star {
-    font-size: 1.25em;
-    display: inline-flex;
-    justify-content: center;
-    align-items: end;
+    font-size: 1.15em;
 }
 
 #submitExit {
@@ -408,8 +413,9 @@ input {
     display: grid;
     gap: 1% 0;
     overflow-y: hidden;
-    grid-template-rows: [hours] 1lh;
-    grid-template-columns: repeat(24, min-content);
+    grid-auto-flow: row;
+    grid-template-rows: 1lh;
+    grid-template-columns: repeat(96, max-content);
 }
 
 #week {
@@ -419,7 +425,8 @@ input {
 .hour {
     text-align: center;
     position: relative;
-    width: var(--sL);
+    min-width: 8ch;
+    grid-column: span 4;
 }
 
 .hour::after {
@@ -427,15 +434,17 @@ input {
     content: "";
     z-index: -1;
     left: 0;
-    height: calc(100vh);
+    height: 89vh;
     width: 100%;
     border-left: 1px dashed rgba(255, 255, 255, 0.415);
     background: repeating-linear-gradient(to right, rgba(var(--secondaryC), 0.5) 0 25%, transparent 25% 50%);
 }
 
 .eventGroup {
+    grid-column: span 4;
     position: relative;
     width: 100%;
+    font-size: 0.75em;
     border-radius: 0.75ex;
 }
 
@@ -511,23 +520,26 @@ input {
 
 .hourCard {
     position: absolute;
-    display: flex;
+    width: 28ch;
     height: 100%;
-    width: 100%;
+    top: 0;
     border-radius: inherit;
     padding: 0.5ex;
     padding-left: 0.75ex;
-    font-size: 0.75em;
     font-weight: 600;
     overflow: hidden;
     outline: 0.5ex solid transparent;
     transition: outline-color 1s ease-in-out, height 0.5s ease-in-out;
 }
 
+.hourCard:first-child {
+    position: relative;
+}
+
 .hourCard p {
-    /* white-space: pre; */
+    white-space: pre;
     overflow: hidden;
-    width: 100%;
+    /* width: 100%; */
 }
 
 .clamp .hourCard p {
@@ -546,7 +558,7 @@ input {
 }
 
 .expanded > * {
-    outline: 0.5ex slateblue solid;
+    /* outline: 0.5ex slateblue solid; */
     box-shadow: 0 0 2ex rgba(0, 0, 0, 0.75);
 }
 
@@ -561,7 +573,7 @@ input {
 .material-symbols-rounded.star[boolean="true"] {
     font-variation-settings:
   'FILL' 1,
-  'wght' 150,
+  'wght' 200,
   'GRAD' 200,
   'opsz' 48;
     color: gold;
@@ -570,14 +582,14 @@ input {
 .material-symbols-rounded.star[boolean="false"] {
     font-variation-settings:
     'FILL' 0,
-    'wght' 150,
+    'wght' 200,
     'GRAD' 200,
     'opsz' 48;
     color: transparent;
     transition: color 0.25s;
 }
 
-.material-symbols-rounded.star[boolean="false"]:hover {
-    color: rgba(var(--textColor), 0.6);
+.event:hover > .material-symbols-rounded.star[boolean="false"] {
+    color: rgba(var(--textColor), 0.8);
 } 
 
