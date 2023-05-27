@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Changa&family=Sen&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');
 
 * {
     padding: 0;
@@ -9,6 +10,7 @@
     /* font-family: 'Bebas Neue', cursive; */
     /* font-family: 'Changa', sans-serif; */
     /* font-family: 'Sen', sans-serif; */
+    /* font-family: 'IBM Plex Mono', monospace; */
     cursor: default;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -21,6 +23,7 @@ body {
     overflow: hidden;
     --sL: 8vmax;
     --pGap: 0.5vmax;
+    --a: 0;
     /* colors */
     /* light */
     
@@ -70,7 +73,7 @@ input {
     opacity: 0;
 } */
 
-#calendar, #newCalendarEvent, .header, .summary, .timeline, .detailed div, .nav > * {
+#calendar, .header, .summary, .timeline, .detailed div, .nav > * {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -89,7 +92,7 @@ input {
     background-color: var(--primaryC);
     padding: var(--pGap);
     border-radius: 0.75vmax;
-    filter: drop-shadow(0 0 calc(0.5 * var(--pGap)) rgb(105, 105, 105));
+    box-shadow: 0 0 calc(0.5 * var(--pGap)) rgb(105, 105, 105);
     /* filter: drop-shadow(0 0 calc(0.5 * var(--pGap)) black); */
 }
 
@@ -129,6 +132,7 @@ input {
 #month {
     display: grid;
     align-content: center;
+
     flex: 1 1 calc(0.5 * var(--sL));
 }
 
@@ -149,7 +153,7 @@ input {
     position: relative;
     --h: 1.75em;
     z-index: 1;
-    font-weight: 600;
+    /* font-weight: 600; */
     background-color: rgb(var(--secondaryC));
     filter: drop-shadow(0 0 calc(0.5 * var(--gap)) rgba(0, 0, 0, 0.4));
 }
@@ -196,39 +200,96 @@ input {
     margin-top: 0.5vmax;
 }
 
-#dataPanel {
-    /* gap: var(--pGap); */
-    align-items: stretch;
+#controlPanel {
     display: grid;
-    /* grid-auto-flow: column; */
-    grid-template-columns: 1fr minmax(0, 3fr);
-    grid-column: 5/-1;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+    /* background: blueviolet; */
+    gap: var(--gap);
+    border-bottom-right-radius: 0.5vmax;
+    /* border: 1px solid rgba(255, 255, 255, 0.16) */
+}
+
+#controlPanel > * {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#controlPanel > *::before, #controlPanel > *::after {
+    position: absolute;
+    border-radius: 7.5%;
+}
+
+#controlPanel > *::before {
+    inset: 0;
+    content: attr(icon);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    background: color-mix(in srgb, rgb(var(--secondaryC)), rgb(228, 13, 13));
+}
+
+#controlPanel > *:active::before {
+    background: color-mix(in srgb, rgb(var(--secondaryC)), rgb(150, 0, 0));
+}
+
+#controlPanel > *::after {
+    content: "";
+    opacity: 0;
+    z-index: 1;
+    inset: -1px;
+    transition: all 1s;
+    background: conic-gradient(from var(--a), rgb(var(--accentC)), white, transparent 25%, transparent, transparent,rgb(var(--accentC)));
+}
+
+#controlPanel > *:hover::after {
+    opacity: 1;
+}
+
+#controlPanel > *:active::after {
+    opacity: 0;
+}
+
+#dataPanel {
+    gap: 0 var(--pGap);
+    grid-template-columns: max-content 1fr;
+    grid-template-rows: repeat(5, 1fr);
+    grid-auto-flow: column;
+    grid-column: 5/-2;
     background: var(--tertiaryC);
-    background-clip: content-box;
-    margin: 0.1vmax 0 0 0.1vmax;
+    margin-left: 0.1vmax;
+}
+
+#dataPanel, #controlPanel {
+    display: grid;
+    margin-top: 0.1vmax;
     border-top-left-radius: 0.15vmax;
     border-top-right-radius: 0.15vmax 0.25vmax;
     border-bottom-left-radius: 0.25vmax 0.15vmax;
-    border-bottom-right-radius: 0.5vmax;
-    /* border-radius: 0.15vmax 0.15vmax / 0.25vmax 0.25vmax 0.25vmax / 0.15vmax; */
 }
 
 #dataPanel > * {
-    margin: calc(var(--pGap) / 2);
     text-shadow: 0.1ex 0.1ex black;
 }
 
 #dataPanel div {
     white-space: pre;
-    font-size: 1.2em;;
+    font-size: 1em;;
 }
 
-#dataPanel span {
-    /* text-align: center; */
+#dataPanel div:first-child {
     /* i want the background to be a canvas using collatz conjecutre */
+    margin: calc(var(--pGap) / 2);
+    width: calc(var(--sL) - 0.25vmax - var(--pGap) / 2);
     font-size: 3em;
     font-weight: 500;
-    background: blue;
+    grid-row: 1/ -1;
+    background: rgb(142, 142, 200);
+    filter: drop-shadow(0 0 0.2ex rgba(0, 0, 0, 0.25));
     border-radius: 5%;
     display: inline-flex;
     align-items: center;
@@ -236,7 +297,6 @@ input {
 }
 
 #focus {
-    --a: 0;
     position: absolute;
     width: var(--sL);
     height: var(--sL);
@@ -270,6 +330,7 @@ input {
     #ffffff);
     background: conic-gradient(from var(--a),#FFA07A,#FFB6C1,#FFE4C4,#90EE90,#87CEFA,#ADD8E6,#D8BFD8,#E0FFFF,#FFEFD5,#F0E68C,#F0E68C,#FFEFD5,#E0FFFF,#D8BFD8,#ADD8E6,#87CEFA,#90EE90,#FFE4C4,#FFB6C1,#FFA07A);
     background: repeating-conic-gradient(from var(--a), rgba(211,211,211,1) 0%, rgba(217,210,233,1) 7%, rgba(174,214,241,1) 13%, rgba(196,212,181,1) 20%, rgba(255,255,224,1) 28%, rgba(255,229,180,1) 35%, rgba(243,214,228,1) 43%);
+    background: white;
 }
 
 #focus::before {
@@ -282,23 +343,24 @@ input {
     border-top-right-radius: inherit;
 }
 
-#newCalendarEvent {
+#eventDialog {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-weight: 500;
     width: calc(5 * var(--sL));
-    opacity: 0;
     flex-direction: column;
     align-items: flex-start;
-    padding: 3em;
+    padding-top: 2.5vmax;
     border-radius: 0.3em;
-    transition: opacity 0.2s ease-in-out;
 }
 
-#newCalendarEvent > input[type="text"] {
-    width: 70%;
+#eventDialog > div {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    /* width: 70%; */
 }
 
 .event {
@@ -319,11 +381,11 @@ input {
 #submitExit {
     position: absolute;
     right: 0;
-    margin: 1rem;
-    height: 2vmax;
-    width: 2vmax;
+    top: 0;
+    height: 1.5vmax;
+    width: 1.5vmax;
     fill: none;
-    transform: rotate(45deg);
+    transform: translate(50%, -50%) scaleX(0.9) rotate(45deg) translateY(100%);
 }
 
 #submitExit path {
@@ -331,13 +393,13 @@ input {
     stroke-width: 30;
     stroke-linejoin: round;
     stroke-linecap: round;
-    stroke-dasharray: 160 calc(40*3.1459 + 80);
-    transition: all 1s;
+    stroke-dasharray: 79.375;
+    transition: stroke-dasharray 0.3s;
 }
 
-#submitExit path[data-valid="1"] {
+#submitExit[data-valid="1"] path {
     stroke: green;
-    stroke-dasharray: 0 calc(40*3.1459 + 160) 1000;
+    stroke-dasharray: 119.0625 140;
 }
 
 #expansion {
@@ -356,6 +418,7 @@ input {
 }
 
 .nav > * {
+    font-size: 1em;
     position: relative;
     line-height: 100%;
     z-index: 1;
@@ -420,6 +483,10 @@ input {
 
 #week {
     --dayWidth: calc(0.5 * var(--sL));
+}
+
+#expandDiv {
+    position: absolute;
 }
 
 .hour {
@@ -501,7 +568,7 @@ input {
     justify-content: space-between;
 }
 .listCard span:first-of-type {
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .listCard span {
@@ -516,6 +583,7 @@ input {
     border-radius: inherit;
     box-shadow: 0 0 0.5ex black;
     padding: 0.5ex 1ex;
+    font-weight: 350;
 }
 
 .hourCard {
@@ -570,7 +638,13 @@ input {
   'opsz' 48
 }
 
-.material-symbols-rounded.star[boolean="true"] {
+#dataPanel > div:not(:first-child) {
+    display: flex;
+    align-items: center;
+}
+
+.material-symbols-rounded.star {
+    font-size: 1em;
     font-variation-settings:
   'FILL' 1,
   'wght' 200,
@@ -592,4 +666,8 @@ input {
 .event:hover > .material-symbols-rounded.star[boolean="false"] {
     color: rgba(var(--textColor), 0.8);
 } 
+
+.select {
+    outline: 0.15vmax solid rgb(0, 136, 255);
+}
 

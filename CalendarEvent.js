@@ -72,7 +72,11 @@ export default class CalendarEvent {
         let diff = aHash - bHash
 
         if (!diff) {
-            return a.getName().localeCompare(b.getName())
+            const compareName = a.getName().localeCompare(b.getName())
+            if (!compareName) {
+                return a.getColor().localeCompare(b.getColor())
+            }
+            return compareName 
         }
         return diff
     }

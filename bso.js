@@ -1,8 +1,8 @@
 import Year from "./Year.js"
 import Timeline from "./Timeline.js"
 import Day from "./Day.js"
-import generateRandomEventData from "./randomEventGenerator.js"
 import Month from "./Month.js"
+import CalendarEventUI from "./CalendarEventUI.js"
 
 
 const todayDate = new Date()
@@ -11,9 +11,10 @@ Day.init(todayDate)
 Month.init(todayDate)
 Year.init(todayDate)
 let i = 0
+const body = document.querySelector("body")
 setInterval(() => {
-    Day.focus.block.style.setProperty("--a", `${++i % 360}deg`)
-    // if (Month.) check if date changes
+    body.style.setProperty("--a", `${++i % 360}deg`)
+    // if ((new Date()).getDate() !== todayDate.getDate()) {
 }, 10)
 
 const calendarContainer = document.getElementById("calendar") //holds all days Divs
@@ -55,92 +56,19 @@ for (let i = 0; i < buttons.length; i++) {
     }, false)
 }
 
-const eventPopUp = document.getElementById("newCalendarEvent")
-const eventInfo = {
-    name: eventPopUp.querySelector("#eventName"),
-    description: eventPopUp.querySelector("#eventDescription"),
-    time: eventPopUp.querySelector("#eventTime"),
-    venue: eventPopUp.querySelector("#eventVenue"),
-    color: eventPopUp.querySelector("#eventColor"),
-
-    fillValues() {
-        let e = generateRandomEventData()
-        this.name.value = e.eventName
-        this.description.value = e.eventDescription
-        this.time.value = e.eventTime
-        this.venue.value = e.eventVenue
-        this.color.value = e.eventColor
-    },
-
-    getValues() {
-        const valMap = new Map();
-        Object.entries(this).forEach(entry => {
-            if (typeof entry[1] !== "function") {
-                valMap.set(entry[0], entry[1].value)
-                if (entry[0] !== "time" && entry[0] != "color") {
-                    entry[1].value = ""
-                }
-            }
-        })
-        return valMap
-    },
-
-    isValid() {
-        let valid = true
-        Object.values(this).forEach(inputEl => {
-            if (typeof inputEl !== "function" && !inputEl.value) {
-                valid = false    
-            }
-        })
-        return valid
-    }
-
-}
-
-const summary = document.querySelector(".summary")
-const submitExit = eventPopUp.querySelector("#submitExit")
-const cross = submitExit.firstElementChild
-
-eventPopUp.addEventListener("input", () => {
-    if (eventInfo.isValid()) {
-        cross.setAttribute("data-valid", 1) //1 is true
-    } else {
-        cross.setAttribute("data-valid", 0) //0 is false
-    }
-})
-
-function saveCalendarEvent() {
-    if (eventInfo.isValid()) {
-        Day.focus.currDay.addCalEventUI(eventInfo.getValues())
-    }
-    eventPopUp.style.opacity = "0"
-    eventPopUp.style.zIndex = "0"
-    cross.setAttribute("check", "0")
-    summary.classList.remove("blur")
-}
-
-function randomCalendarEvent() { 
-    eventInfo.fillValues()
-    saveCalendarEvent()
-}
-
-submitExit.addEventListener("click", saveCalendarEvent)
-
-document.querySelector("body").addEventListener("keypress", e => {
+body.addEventListener("keydown", e => {
     if (e.key === 'q') {
-        randomCalendarEvent()
+        CalendarEventUI.popUp.randomCalendarEvent()
+    }
+    if (e.ctrlKey && e.key === "b") {
+        const click = new Event("click")
+        Day.focus.currDay.getEventArray().forEach(el => el.dispatchEvent(click))
     }
 })
 
-document.getElementById("addEventButton").addEventListener('click', () => {
-    eventPopUp.style.opacity = "1"
-    eventPopUp.style.zIndex = "1"
-    summary.classList.add("blur")
-})
-
-function getCssVariableValue(element, varName, unit) {
-    return +window.getComputedStyle(element).getPropertyValue(varName).slice(0, -unit.length)
-}
+// function getCssVariableValue(element, varName, unit) {
+//     return +window.getComputedStyle(element).getPropertyValue(varName).slice(0, -unit.length)
+// }
 
 displayMonth()
 

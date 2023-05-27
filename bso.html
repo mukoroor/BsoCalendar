@@ -19,7 +19,6 @@
                     <div class="nav">
                         <button type="button" id="prevMonth" class="material-symbols-rounded">arrow_back_ios</button>
                         <button type="button" id="nextMonth" class="material-symbols-rounded">arrow_forward_ios</button>
-                        <button type="button" id="addEventButton" class="material-symbols-rounded">add</button>
                     </div>
                 </div>
             </div>
@@ -40,21 +39,13 @@
             </div>
         </div>
     </div>
-    <!-- done -->
-    <div id="newCalendarEvent" class="card">
-        <svg id="submitExit" viewBox="0 0 200 160">
-            <path d="m 200 70 h -160 a 40 40 0 0 0 0 80 h 80 v -160"></path>
+    <dialog id="eventDialog" class="card">
+        <svg width="400" height="400" version="1.1" viewBox="0 0 105.83 105.83" xmlns="http://www.w3.org/2000/svg" id="submitExit">
+            <g transform="translate(-.0018907 -.00013223)">
+             <path d="m52.919 13.229v79.375l-39.688-3e-6v-39.687h79.375" style="fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.8;stroke-width:13.229;"/>
+            </g>
         </svg>
-        <label for="eventName">name</label>
-        <input type="text" id="eventName">
-        <label for="eventTime">time</label>
-        <input type="time" id="eventTime">
-        <label for="eventVenue">venue</label>
-        <input type="text" id="eventVenue">
-        <label for="eventDescription">description</label>
-        <input type="text" id="eventDescription">
-        <label for="eventColor">Picker</label>
-        <input type="color" id="eventColor" value="#ff8020">
-    </div>
+        <div></div>           
+    </dialog>
 </body>
 </html>

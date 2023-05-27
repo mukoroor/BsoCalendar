@@ -7,57 +7,9 @@ import Month from "./Month.js"
 import UI from "./UI.js"
 
 export default class Day extends UI {
-    static focus = {
-        block: document.createElement("div"),
-        dataPanel: document.createElement("div"),
-        currDay: null,
-        newestEvent: null,
-        setData() {
-            this.dataPanel.firstElementChild.textContent = 
-                new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toLocaleString("en-US", { weekday: 'short' })
-            this.dataPanel.style.gridColumnStart = Month.dayCounts[Month.monthIndex] % 7 + 1
-            const events = this.currDay.getEventArray()
-            if (!events.length) {
-                this.dataPanel.lastElementChild.textContent = "No events"
-                return
-            }
-            let starredCount = 0
-            for (const e of events) {
-                if (e.isStarred()) starredCount++ 
-                else break
-            }
-
-            let earliestTime, latestTime
-            if (starredCount && starredCount !== events.length) {
-                earliestTime = (CalendarEvent.compare(events[0].getCalendarEvent(), events[starredCount].getCalendarEvent()) < 0 ? 
-                events[0].getCalendarEvent().getTime(): events[starredCount].getCalendarEvent().getTime())
-                latestTime = (CalendarEvent.compare(events[events.length - 1].getCalendarEvent(), events[starredCount - 1].getCalendarEvent()) > 0 ? 
-                events[events.length - 1].getCalendarEvent().getTime(): events[starredCount - 1].getCalendarEvent().getTime())
-            } else {
-                earliestTime = events[0].getCalendarEvent().getTime()
-                latestTime = events[events.length - 1].getCalendarEvent().getTime()
-            }
-
-            this.dataPanel.lastElementChild.textContent = `Data\n⭐: ${starredCount}\nCount: ${events.length}\nFirst: ${earliestTime}\nLast: ${latestTime}`
-        },
-
-        calcNewPos(dayNum = this.currDay.getDayNumber()) {
-            const x = 1.025 * 8 * ((dayNum - 1) % 7)
-            const y = 1.025 * 8 * (Math.floor((dayNum - 1) / 7))
-            return {x, y}
-        },
-        
-        setPos(x, y, show = undefined) {
-            Day.focus.block.setAttribute("x", x)
-            Day.focus.block.setAttribute("y", y)
-            if (show) gsap.set(Day.focus.block, {x: `${x}vmax`, y: `${y}vmax`})
-        },
-
-        getPos() {
-            return { x: Day.focus.block.getAttribute("x"), y: Day.focus.block.getAttribute("y")}
-        },
-
-    }
+    static focus = createFocus()
+    static dataPanel = createDataPanel()
+    static controlPanel = createControlPanel()
     #dayNumber
     #calendarEventUITree
 
@@ -72,35 +24,34 @@ export default class Day extends UI {
         this.getElement().classList.add("day")
         this.getElement().append(dayNumContainer, eventsContainer)
         this.getElement().addEventListener("click", () => {
-            this.moveFocusBlock()
-        })
+            if (Day.focus.currDay !== this) this.moveFocusBlock()
+        }, true)
     }
 
-    addCalEventUI(map) {
-        const cUI = new CalendarEventUI(map)
-        this.#calendarEventUITree.insert(cUI)
-        const successor = this.#calendarEventUITree.upperBound(new CalendarEventUI(map))
+    addCalEventUI(eventUI) {
+        this.#calendarEventUITree.insert(eventUI)
+        const successor = this.#calendarEventUITree.upperBound(eventUI, false)
         const flex = this.getElement().lastElementChild
-        if (successor && successor.getValue() !== cUI) {
-            flex.insertBefore(cUI.getElement(), successor.getValue().getElement());
+        if (successor && successor.getValue() !== eventUI) {
+            flex.insertBefore(eventUI.getElement(), successor.getValue().getElement());
         } else {
-            flex.append(cUI.getElement());
+            flex.append(eventUI.getElement());
         }
-        Day.focus.newestEvent = cUI
-        Day.focus.setData()
-        gsap.from(cUI.getElement(), {opacity: 0, duration: 2})
+        Day.focus.newestEvent = eventUI
+        // gsap.from(eventUI.getElement().firstElementChild, {color: "green"})
         Timeline.showTimeline()
-        cUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
+        eventUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
+        Day.dataPanel.setData()
         
     }
 
-    removeCalEventUI(element) {
+    removeCalEventUIByHTML(element) {
         const events = this.getEventArray()
         for (const event of events) {
             const eventCard = event.getEventCard()
             const minEventCard = event.getMinEventCard()
 
-            if (eventCard === element || minEventCard === element) {
+            if (eventCard === element || minEventCard === element || this.getElement() === element) {
                 if (eventCard) {
                     gsap.to(eventCard, {scale: 0, onComplete: () => eventCard.parentNode?.removeChild(eventCard)})
                 }
@@ -112,7 +63,17 @@ export default class Day extends UI {
                 break
             }
         }
-        Day.focus.setData()
+        Day.dataPanel.setData()
+    }
+
+    removeCalEventUI(eventUI) {
+        const eventCard = eventUI.getEventCard()
+        const minEventCard = eventUI.getMinEventCard()
+        if (eventCard) eventCard.parentNode?.removeChild(eventCard)
+        if (minEventCard) minEventCard.getMinEventCard().parentNode?.removeChild(minEventCard)
+        this.getElement().lastElementChild.removeChild(eventUI.getElement())
+        this.#calendarEventUITree.remove(eventUI)
+        Day.dataPanel.setData()
     }
 
     getDayNumber() {
@@ -144,11 +105,13 @@ export default class Day extends UI {
     }
 
     moveFocusBlock() { 
-        const pos = Day.focus.getPos()
         Day.focus.currDay = this
+        Day.focus.selectionSet.forEach(e => e.getElement().classList.remove("select"))
+        Day.focus.selectionSet = new Set()
+        const pos = Day.focus.getPos()
         const newPos = Day.focus.calcNewPos()
         Day.focus.setPos(newPos.x, newPos.y)
-        Day.focus.setData()
+        Day.dataPanel.setData()
         console.log("passed")
         if (newPos.x == pos.x && newPos.y == pos.y) {
             return
@@ -156,29 +119,167 @@ export default class Day extends UI {
         const timeline = gsap.timeline()
         if(newPos.x != pos.x && newPos.y != pos.y) {
             if ((pos.y > 24 * 1.025 || pos.y > pos.x && newPos.y < 24 * 1.025)) {
-                timeline.to(Day.focus.block, {y: `${newPos.y}vmax`, ease: "power3.out"})
-                timeline.to(Day.focus.block, {x: `${newPos.x}vmax`, ease: "power3.out"})
+                timeline.to(Day.focus.getElement(), {y: `${newPos.y}vmax`, ease: "power3.out"})
+                timeline.to(Day.focus.getElement(), {x: `${newPos.x}vmax`, ease: "power3.out"})
             } else {
-                timeline.to(Day.focus.block, {x: `${newPos.x}vmax`, ease: "power3.out"})
-                timeline.to(Day.focus.block, {y: `${newPos.y}vmax`, ease: "power3.out"})
+                timeline.to(Day.focus.getElement(), {x: `${newPos.x}vmax`, ease: "power3.out"})
+                timeline.to(Day.focus.getElement(), {y: `${newPos.y}vmax`, ease: "power3.out"})
             }
         } else {
-            timeline.to(Day.focus.block, {x: `${newPos.x}vmax`, y: `${newPos.y}vmax`, ease: "power3.out"})
+            timeline.to(Day.focus.getElement(), {x: `${newPos.x}vmax`, y: `${newPos.y}vmax`, ease: "power3.out"})
         }
         Timeline.timelineInstances[Timeline.currTimelineIndex].clearElement()
         Timeline.timelineChanged = true
         Timeline.showTimeline()
     }
 
-    updateDisplayOrder() {
-        this.getElement().lastElementChild.replaceChildren(...this.getEventArray().map(cUI => cUI.getElement()))
-    }
-
     static init(date) {
-        Day.focus.block.id = "focus"
-        Day.focus.dataPanel.id = "dataPanel"
-        Day.focus.dataPanel.append(document.createElement("span"), document.createElement("div"))
         const pos = Day.focus.calcNewPos(date.getDate())
         Day.focus.setPos(pos.x, pos.y, true)
     }
+}
+
+function createFocus() {
+    class Focus extends UI {
+        currDay = null
+        newestEvent = null
+        selectionSet = new Set()
+
+        constructor() {
+            super()
+            this.getElement().id = "focus"
+        }
+
+        calcNewPos(dayNum = this.currDay.getDayNumber()) {
+            const x = 1.025 * 8 * ((dayNum - 1) % 7)
+            const y = 1.025 * 8 * (Math.floor((dayNum - 1) / 7))
+            return {x, y}
+        }
+        
+        setPos(x, y, show = undefined) {
+            this.getElement().setAttribute("x", x)
+            this.getElement().setAttribute("y", y)
+            if (show) gsap.set(this.getElement(), {x: `${x}vmax`, y: `${y}vmax`})
+        }
+    
+        getPos() {
+            return { x: this.getElement().getAttribute("x"), y: this.getElement().getAttribute("y")}
+        }
+    }
+    return new Focus()
+}
+
+function createDataPanel() {
+    class DataPanel extends UI {
+        #dayOfTheWeek
+        #starred
+        #count
+        #first
+        #last
+        #totalTime
+        constructor() {
+            super()
+            this.getElement().id = "dataPanel"
+            this.#dayOfTheWeek = document.createElement("div")
+            this.#starred = document.createElement("div")
+            this.#count = document.createElement("div")
+            this.#first = document.createElement("div")
+            this.#last = document.createElement("div")
+            this.#totalTime = document.createElement("div")
+
+            const star = document.createElement("span")
+            star.textContent = "star"
+            star.classList.add("material-symbols-rounded", "star")
+            this.#starred.append(star)
+
+            this.getElement().append(this.#dayOfTheWeek, this.#starred, this.#count, this.#first, this.#last, this.#totalTime)
+        }
+
+        setData() {
+            this.#dayOfTheWeek.textContent = 
+                new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toLocaleString("en-US", { weekday: 'short' })
+            this.getElement().style.gridColumnStart = Month.dayCounts[Month.monthIndex] % 7 + 1
+            const events = Day.focus.currDay.getEventArray()
+            let starredCount = 0
+            let earliestTime, latestTime
+            if (events.length) {
+                for (const e of events) {
+                    if (e.isStarred()) starredCount++ 
+                    else break
+               }
+    
+                if (starredCount && starredCount !== events.length) {
+                    earliestTime = (CalendarEvent.compare(events[0].getCalendarEvent(), events[starredCount].getCalendarEvent()) < 0 ? 
+                    events[0].getCalendarEvent().getTime(): events[starredCount].getCalendarEvent().getTime())
+                    latestTime = (CalendarEvent.compare(events[events.length - 1].getCalendarEvent(), events[starredCount - 1].getCalendarEvent()) > 0 ? 
+                    events[events.length - 1].getCalendarEvent().getTime(): events[starredCount - 1].getCalendarEvent().getTime())
+                } else {
+                    earliestTime = events[0].getCalendarEvent().getTime()
+                    latestTime = events[events.length - 1].getCalendarEvent().getTime()
+                }
+            }
+    
+            const star = this.#starred.firstChild
+            this.#starred.textContent = ": " + starredCount
+            this.#starred.prepend(star)
+            this.#count.textContent = "Count: " + events.length
+            this.#first.textContent = "First Event: " + (earliestTime || "N/A")
+            this.#last.textContent = "Last Event: " + (latestTime || "N/A")
+            this.#totalTime.textContent = "Total Time: "
+        }
+    }
+    return new DataPanel()
+}
+
+function createControlPanel() {
+    class ControlPanel extends UI {
+        #add
+        #delete
+        #edit
+        #move
+        
+        constructor() {
+            super()
+            this.getElement().id = "controlPanel"
+
+            this.#add = document.createElement("div")
+            this.#delete = document.createElement("div")
+            this.#edit = document.createElement("div")
+            this.#move = document.createElement("div")
+
+            this.#add.setAttribute("icon", "add")
+            this.#delete.setAttribute("icon", "delete")
+            this.#edit.setAttribute("icon", "edit")
+            this.#move.setAttribute("icon", "move_group")
+            
+            this.#delete.classList.add("material-symbols-rounded")
+            this.#edit.classList.add("material-symbols-rounded")
+            this.#add.classList.add("material-symbols-rounded")
+            this.#move.classList.add("material-symbols-rounded")
+
+            this.#add.addEventListener("click", this.add)
+            this.#delete.addEventListener("click", this.deleteAll)
+            this.#edit.addEventListener("click", this.editAll)
+
+            this.getElement().append(this.#add, this.#delete, this.#edit, this.#move)
+        }
+
+        add() {
+           CalendarEventUI.popUp.open()
+        }
+
+        deleteAll() {
+            Day.focus.selectionSet.forEach(e => Day.focus.currDay.removeCalEventUI(e))
+            Day.focus.selectionSet = new Set()
+        }
+
+        editAll() {
+            Day.focus.selectionSet.forEach(e => {
+                e.edit()
+                e.getElement().click()
+            })
+            Day.focus.selectionSet = new Set()
+        }
+    }
+    return new ControlPanel()
 }

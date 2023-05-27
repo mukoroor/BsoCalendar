@@ -72,6 +72,9 @@ export class DayTimeline extends Timeline {
             hr.classList.add("hour")
             this.getElement().append(hr)
         }
+        const expandDiv = document.createElement("div")
+        expandDiv.id = "expandDiv"
+        this.getElement().append(expandDiv)
     }
     
     displayDetailedEvents() {

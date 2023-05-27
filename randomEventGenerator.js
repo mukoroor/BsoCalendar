@@ -1,4 +1,4 @@
-export default function generateRandomEventData(maxEventNameLength = 28, minDescriptionWords = 1, maxDescriptionWords = 9) {
+export default function generateRandomEventData(maxEventNameLength = 40, minDescriptionWords = 1, maxDescriptionWords = 9) {
   const eventName = generateRandomEventName(maxEventNameLength);
   const eventDescription = generateRandomEventDescription(minDescriptionWords, maxDescriptionWords);
   const eventTime = generateRandomEventTime();

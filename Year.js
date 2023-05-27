@@ -22,8 +22,10 @@ export default class Year {
         const header  = Month.monthNames[Month.monthIndex] + ' | ' + Year.currentYear
         const days = curr.getElement()
 
-        days.append(Day.focus.block)
-        days.append(Day.focus.dataPanel)
+        days.append(Day.focus.getElement())
+        days.append(Day.dataPanel.getElement())
+        days.append(Day.controlPanel.getElement())
+
         curr.setFocusDay()    
         return {header, days}
     }
