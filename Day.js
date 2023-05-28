@@ -5,6 +5,7 @@ import Timeline from "./Timeline.js"
 import Year from "./Year.js"
 import Month from "./Month.js"
 import UI from "./UI.js"
+import PopUp from "./PopUp.js"
 
 export default class Day extends UI {
     static focus = createFocus()
@@ -24,7 +25,16 @@ export default class Day extends UI {
         this.getElement().classList.add("day")
         this.getElement().append(dayNumContainer, eventsContainer)
         this.getElement().addEventListener("click", () => {
-            if (Day.focus.currDay !== this) this.moveFocusBlock()
+            if (Day.focus.currDay !== this) {
+                this.moveFocusBlock()
+                if (Day.focus.selectionSet.size) {
+                    Day.focus.selectionSet.forEach(e => {
+                        this.addCalEventUI(e)
+                    })
+                    // this.#move.setAttribute("icon", "move" + Day.focus.selectionSet.size())
+                }
+                Day.focus.selectionSet = new Set()
+            }
         }, true)
     }
 
@@ -70,7 +80,7 @@ export default class Day extends UI {
         const eventCard = eventUI.getEventCard()
         const minEventCard = eventUI.getMinEventCard()
         if (eventCard) eventCard.parentNode?.removeChild(eventCard)
-        if (minEventCard) minEventCard.getMinEventCard().parentNode?.removeChild(minEventCard)
+        if (minEventCard) minEventCard.parentNode?.removeChild(minEventCard)
         this.getElement().lastElementChild.removeChild(eventUI.getElement())
         this.#calendarEventUITree.remove(eventUI)
         Day.dataPanel.setData()
@@ -107,12 +117,11 @@ export default class Day extends UI {
     moveFocusBlock() { 
         Day.focus.currDay = this
         Day.focus.selectionSet.forEach(e => e.getElement().classList.remove("select"))
-        Day.focus.selectionSet = new Set()
+        // Day.focus.selectionSet = new Set()
         const pos = Day.focus.getPos()
         const newPos = Day.focus.calcNewPos()
         Day.focus.setPos(newPos.x, newPos.y)
         Day.dataPanel.setData()
-        console.log("passed")
         if (newPos.x == pos.x && newPos.y == pos.y) {
             return
         }
@@ -260,12 +269,26 @@ function createControlPanel() {
             this.#add.addEventListener("click", this.add)
             this.#delete.addEventListener("click", this.deleteAll)
             this.#edit.addEventListener("click", this.editAll)
+            this.#move.addEventListener("click", this.moveAll)
 
             this.getElement().append(this.#add, this.#delete, this.#edit, this.#move)
         }
 
         add() {
-           CalendarEventUI.popUp.open()
+            const _p = CalendarEventUI.popUp
+            const finish = () => {
+                Day.focus.currDay.addCalEventUI(_p.saveCalendarEvent())
+                _p.close()
+                PopUp.dialog.firstElementChild.removeEventListener("click", finish)
+            }
+            _p.open()
+            _p.checkData().then(() => {
+                PopUp.dialog.firstElementChild.addEventListener("click", finish)
+            })
+        }
+
+        rand() {
+            Day.focus.currDay.addCalEventUI(CalendarEventUI.popUp.randomCalendarEvent())
         }
 
         deleteAll() {
@@ -273,12 +296,19 @@ function createControlPanel() {
             Day.focus.selectionSet = new Set()
         }
 
-        editAll() {
-            Day.focus.selectionSet.forEach(e => {
-                e.edit()
-                e.getElement().click()
-            })
+        async editAll() {
+            for (const e of Day.focus.selectionSet) {
+                await e.edit()
+                e.getElement().classList.remove("select")
+            }
             Day.focus.selectionSet = new Set()
+        }
+
+        moveAll() {
+            Day.focus.selectionSet.forEach(e => {
+                Day.focus.currDay.removeCalEventUI(e)
+            })
+            // this.setAttribute("icon", "move " + Day.focus.selectionSet.size)
         }
     }
     return new ControlPanel()

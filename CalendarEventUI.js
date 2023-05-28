@@ -42,7 +42,6 @@ export default class CalendarEventUI extends UI {
             } else {
                 Day.focus.selectionSet.delete(this)
             }
-            Day.dataPanel.setData()
         })
         this.getElement().setAttribute("title", this.#calendarEvent.getName())
     }
@@ -128,22 +127,33 @@ export default class CalendarEventUI extends UI {
         return this.#starred
     }
 
-    async edit() {
-        // const c = this.#calendarEvent
-        // // CalendarEventUI.popUp.fillValues({eventName: c.getName(), eventDescription: c.getDescription(),
-        // //     eventTime: c.getTime(), eventVenue: c.getVenue(), eventColor: c.getColor()})
-        // CalendarEventUI.popUp.open()
-        // CalendarEventUI.popUp.getData().then(data => {
-        //     this.#calendarEvent.setName(data.get("name"))
-        //     this.#calendarEvent.setDescription(data.get("description"))
-        //     this.#calendarEvent.setTime(data.get("time"))
-        //     this.#calendarEvent.setVenue(data.get("venue"))
-        //     this.#calendarEvent.setColor(data.get("color"))
-        //     this.updateDisplayedData()
-        //     CalendarEventUI.popUp.close()
-        //     Day.focus.currDay.removeCalEventUI(this)
-        //     Day.focus.currDay.addCalEventUI(this)
-        // })
+    edit() {
+        return new Promise((resolve) => {
+            const _c = this.#calendarEvent
+            const _p = CalendarEventUI.popUp
+            _p.fillValues({eventName: _c.getName(), eventDescription: _c.getDescription(),
+                eventTime: _c.getTime(), eventVenue: _c.getVenue(), eventColor: _c.getColor()})
+            const finish = () => {
+                if (+PopUp.dialog.firstElementChild.getAttribute("data-valid")) {
+                    const data = _p.getData()
+                    Day.focus.currDay.removeCalEventUI(this)
+                    _c.setName(data.get("name"))
+                    _c.setDescription(data.get("description"))
+                    _c.setTime(data.get("time"))
+                    _c.setVenue(data.get("venue"))
+                    _c.setColor(data.get("color"))
+                    this.updateDisplayedData()
+                    Day.focus.currDay.addCalEventUI(this)
+                }
+                _p.close()
+                PopUp.dialog.firstElementChild.removeEventListener("click", finish)
+                resolve()
+            }
+            _p.open()
+            _p.checkData().then(() => {
+                PopUp.dialog.firstElementChild.addEventListener("click", finish)
+            })
+        })
     }
 
 }

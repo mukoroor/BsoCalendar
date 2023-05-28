@@ -2,7 +2,6 @@ import Year from "./Year.js"
 import Timeline from "./Timeline.js"
 import Day from "./Day.js"
 import Month from "./Month.js"
-import CalendarEventUI from "./CalendarEventUI.js"
 
 
 const todayDate = new Date()
@@ -58,7 +57,7 @@ for (let i = 0; i < buttons.length; i++) {
 
 body.addEventListener("keydown", e => {
     if (e.key === 'q') {
-        CalendarEventUI.popUp.randomCalendarEvent()
+        Day.controlPanel.rand()
     }
     if (e.ctrlKey && e.key === "b") {
         const click = new Event("click")
