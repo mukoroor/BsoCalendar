@@ -1,7 +1,5 @@
 import UI from "./UI.js"
 import Day from "./Day.js"
-import Year from "./Year.js"
-import Month from "./Month.js"
 
 export default class Timeline extends UI {
     static container = document.querySelector(".view")
@@ -61,128 +59,80 @@ export default class Timeline extends UI {
 }
 
 export class DayTimeline extends Timeline {
-    #currExpanded = null
 
     constructor() {
         super("day")
         let i = 0
+        const hourContainer = document.createElement("div")
+        hourContainer.classList.add("hour-container")
         while (i < 24) {
             const hr = document.createElement("div")
-            hr.textContent = i++
+            hr.textContent = (i % 12 ? i % 12 : 12 ) + ":00 " + (i++ < 12 ? "AM": "PM" ) 
             hr.classList.add("hour")
-            this.getElement().append(hr)
+            hourContainer.append(hr) 
         }
         const expandDiv = document.createElement("div")
         expandDiv.id = "expandDiv"
+        const hourCardContainer = document.createElement("div")
+        hourCardContainer.classList.add("hourCard-container")
         this.getElement().append(expandDiv)
+        this.getElement().append(hourCardContainer)
+        this.getElement().append(hourContainer)
+        let _t = this
+        document.addEventListener("keydown", (e) => this.changeWidth(e)) 
     }
     
     displayDetailedEvents() {
-        let i = 2
-        const parentElement = this.getElement()
-        parentElement.classList.toggle("clamp", parentElement.children.length > 36)
-        const expandGroup = (groupDiv) => {
-            const timeline = gsap.timeline();
-            const childElements = Array.from(groupDiv.children).slice(1)
-            
-            const finalPos = (i) => ({y: `${i * 110}%`, ease: "power4.out"})
-            
-            if (this.#currExpanded && this.#currExpanded != groupDiv) {
-                this.#currExpanded.classList.toggle("expanded")
-                timeline.to(this.#currExpanded.children, finalPos(0))
-                this.#currExpanded = null
-            }
-
-            const isExpanded = groupDiv.classList.toggle("expanded")
-            this.getElement().setAttribute("group-expanded", isExpanded)
-            if (isExpanded) {
-                this.#currExpanded = groupDiv
-            } else {
-                this.#currExpanded = null
-                childElements.reverse()
-            }
-            
-            childElements.forEach((child, i) => {
-                child.style.zIndex = childElements.length - i
-                timeline.to(child, finalPos(groupDiv == this.#currExpanded ? ++i : 0))
-            })
-        }
-        const createGroupHTML = (hour, events) => {
-            const hourDiv = document.createElement("div")
-            hourDiv.addEventListener("click", () => expandGroup(hourDiv))
-            hourDiv.setAttribute('title', hour)
-            hourDiv.setAttribute('multiplicity', events.length)
-            hourDiv.classList.add("eventGroup")
-            events.map(event => {
-                event.setMinEventCard()
-                event.getMinEventCard().classList.add("hourCard")
-                hourDiv.append(event.getMinEventCard())
-            })
-            return hourDiv
-        }
-        const notify = (eventGroup, hourCard) => {
+        const parentElement = this.getElement().querySelector(".hourCard-container")
+        const notify = (hourCard) => {
             hourCard.classList.add("showNewEvent")
-            parentElement.scrollTo({top: 0, left: eventGroup.offsetLeft - 24, behavior: "smooth"})
+            parentElement.scrollTo({top: 0, left: hourCard.offsetLeft - 24, behavior: "smooth"})
             setTimeout(() => {
                 hourCard.classList.remove("showNewEvent")
-                eventGroup.setAttribute("multiplicity", eventGroup.children.length)
             }, 500)
         }
-        if (Timeline.timelineChanged) {
-            const hourMap = Day.focus.currDay.groupByHour()
-            const timeline = gsap.timeline()
-            for (const [hour, events] of hourMap.entries()) { 
-                const newGroup = createGroupHTML(hour, events)
-                newGroup.style.gridRowStart = i++
-                newGroup.style.gridColumnStart = 4 * hour + 1
-                parentElement.append(newGroup)
-                timeline.from(newGroup, {opacity: 0})
-            }
-            parentElement.querySelector(".eventGroup").scrollIntoView({ behavior: "smooth", block: "center"})
-        } else if (Day.focus.newestEvent) {
-            let group = parentElement.querySelector(".eventGroup")
-            const hour = Day.focus.newestEvent.getCalendarEvent().getHour()
-            while(group && group.getAttribute('title') < hour) {
-                group = group.nextElementSibling
-                i++
-            }
-            
-            Day.focus.newestEvent.setMinEventCard()
-            if (group && group.getAttribute('title') == hour) {
-                const hourMap = Day.focus.currDay.groupByHour()
-                const siblings = hourMap.get(hour)
-                const index = siblings.indexOf(Day.focus.newestEvent) + 1
-                const minimized = Day.focus.newestEvent.getMinEventCard()
-                if (index != siblings.length) {
-                    group.insertBefore(minimized, siblings[index].getMinEventCard())
-                } else {
-                    group.append(minimized)
+        const timeGroups = Day.focus.currDay.groupEventsByFlowStartTime()
+        if (timeGroups.length) {
+            for (const eventArr of timeGroups) {
+                for (const _e of eventArr) {
+                    const _ce = _e.getCalendarEvent()
+                    _e.setMinEventCard()
+                    _e.getMinEventCard().classList.add("hourCard")
+                    _e.getMinEventCard().setAttribute("title", `${_ce.getName()}\n${_ce.getVenue()}\n${_ce.getTimeRangeString()}`)
+                    _e.getMinEventCard().style.gridColumn = `${1 + 12 * _ce.getHour() + _ce.getMinutes() / 5} / span ${_ce.calculateTimeRange() / 5}`
+                    parentElement.append(_e.getMinEventCard())
                 }
-                minimized.classList.add("hourCard")
-                notify(group, minimized)
-            } else {
-                const newGroup = createGroupHTML(hour, [Day.focus.newestEvent])
-                if (group) {
-                    parentElement.insertBefore(newGroup, group)
-                } else {
-                    parentElement.appendChild(newGroup)
-                }
-                newGroup.style.gridRowStart = i++
-                newGroup.style.gridColumnStart = 4 * hour + 1
-                while (group) {
-                    group.style.gridRowStart = i++
-                    group = group.nextElementSibling
-                }
-                notify(newGroup, newGroup.firstElementChild)
-                gsap.from(newGroup, {opacity: 0, x: "-100%", ease: "power3.out"})
             }
-            Day.focus.newestEvent = null
+            if (Day.focus.newestEvent) {
+                // notify(Day.focus.newestEvent.getMinEventCard())
+                Day.focus.newestEvent = null
+            }
+            timeGroups[0][0].getMinEventCard().scrollIntoView({ behavior: "smooth", block: "start"})
         }
         Timeline.resetTimelineChanged()
     }
 
+    changeWidth(e) {
+        if (e.key === 'p' || e.key === 'm') {
+            let currWidth = +window.getComputedStyle(this.getElement()).getPropertyValue("--hourWidth").slice(0, -2)
+            if (e.key === "p") {
+                if (currWidth < 38.75) {
+                    currWidth += 0.05
+                }
+            } else if (e.key === "m") {   
+                if (currWidth > 3) {
+                    currWidth -= 0.05
+                }
+            }
+            window.requestAnimationFrame(() => this.getElement().style.setProperty("--hourWidth", `${currWidth}ch`))
+        }
+    }
+
     clearElement() {
-        super.clearElement(".eventGroup")
+        const temp = this.getElement()
+        this.setElement(temp.querySelector(".hourCard-container"))
+        super.clearElement(".hourCard")
+        this.setElement(temp)
     }
 }
 
@@ -193,12 +143,12 @@ export class ListTimeline extends Timeline {
     
     displayDetailedEvents() {
         const events = Day.focus.currDay.getEventArray()
-        const timeline = gsap.timeline()
+        // const timeline = gsap.timeline()
         for(const [i, currEvent] of events.entries()) {
             currEvent.setEventCard()
             if (Timeline.timelineChanged){
                 this.getElement().append(currEvent.getEventCard())
-                timeline.from(currEvent.getEventCard(), {x: "-110%"})    
+                // timeline.from(currEvent.getEventCard(), {x: "-110%"})    
                 currEvent.getEventCard().classList.remove("hourCard", "weekCard")
                 currEvent.getEventCard().classList.add("listCard")
             } else if (currEvent == Day.focus.newestEvent) {
@@ -209,7 +159,7 @@ export class ListTimeline extends Timeline {
                 } else {
                     this.getElement().insertBefore(element, events[i + 1].getEventCard())
                 }
-                gsap.from(element, {x: "-150%"})
+                // gsap.from(element, {x: "-150%"})
                 Day.focus.newestEvent = null
                 break
             }

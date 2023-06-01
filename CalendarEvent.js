@@ -1,38 +1,52 @@
 export default class CalendarEvent {
     #name
-    #time
+    #startTime
+    #endTime
     #venue
     #color
     #description
     
     constructor(map) {
         this.#name = map.get("name") 
-        this.#time = map.get("time") 
         this.#venue = map.get("venue") 
+        this.#startTime = map.get("startTime") 
+        this.#endTime = map.get("endTime") 
         this.#color = map.get("color") 
         this.#description = map.get("description") 
     }
 
     getSummarizedData() {
-        return this.#name + ": " + this.#time;
+        return this.#name + ": " + this.#startTime;
     }
 
-    getTime() {
-        return this.#time
+    getStartTime() {
+        return this.#startTime
+    }
+
+    getEndTime() {
+        return this.#endTime
     }
 
     getHour() {
-        return Math.floor(this.#time.replace(":", "") / 100)
+        return Math.floor(this.#startTime.replace(":", "") / 100)
     }
 
-    getMinute() {
-        return Math.floor(this.#time.replace(":", "") % 100)
+    getMinutes() {
+        return Math.floor(this.#startTime.replace(":", "") % 100)
     }
 
-    setTime(newTime) {
-        this.#time = newTime
+    getTimeRangeString() {
+        return `${this.#startTime} to ${this.#endTime}`;
     }
 
+    setStartTime(newTime) {
+        this.#startTime = newTime
+    }
+
+    setEndTime(newTime) {
+        this.#endTime = newTime
+    }
+    
     getName() {
         return this.#name
     }
@@ -65,19 +79,37 @@ export default class CalendarEvent {
         this.#description = newDescription
     }
 
+    calculateTimeRange() {
+        const start = new Date(`2000-01-01T${this.#startTime}`);
+        const end = new Date(`2000-01-01T${this.#endTime}`);
+      
+        const differenceInMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+      
+        return differenceInMinutes;
+    }
+
     static compare(a, b) {
-        const aHash = +a.getTime().replace(":", "")
-        const bHash = +b.getTime().replace(":", "")
+        if (a === b) return 0
 
-        let diff = aHash - bHash
-
+        let diff = CalendarEvent.compareTime(a.getStartTime(), b.getStartTime())
+        
         if (!diff) {
-            const compareName = a.getName().localeCompare(b.getName())
-            if (!compareName) {
-                return a.getColor().localeCompare(b.getColor())
+            diff = CalendarEvent.compareTime(a.getEndTime(), b.getEndTime())
+
+            if (!diff) {
+                const compareName = a.getName().localeCompare(b.getName())
+                if (!compareName) {
+                    return a.getColor().localeCompare(b.getColor())
+                }
+                return compareName 
             }
-            return compareName 
         }
         return diff
+    }
+
+    static compareTime(eventATime, eventBTime) {
+        let aHash = +eventATime.replace(":", "")
+        let bHash = +eventBTime.replace(":", "")
+        return aHash - bHash
     }
 }

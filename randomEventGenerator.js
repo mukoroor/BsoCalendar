@@ -1,14 +1,17 @@
 export default function generateRandomEventData(maxEventNameLength = 40, minDescriptionWords = 1, maxDescriptionWords = 9) {
   const eventName = generateRandomEventName(maxEventNameLength);
   const eventDescription = generateRandomEventDescription(minDescriptionWords, maxDescriptionWords);
-  const eventTime = generateRandomEventTime();
+  let e = generateRandomEventTime()
+  const eventStartTime = e.startTime;
+  const eventEndTime = e.endTime;
   const eventVenue = generateRandomEventVenue();
   const eventColor = getRandomColor();
 
   return {
     eventName,
     eventDescription,
-    eventTime,
+    eventStartTime,
+    eventEndTime,
     eventVenue,
     eventColor
   };
@@ -45,10 +48,29 @@ function generateRandomEventDescription(minWords, maxWords) {
 
 
 function generateRandomEventTime() {
-  const hours = padNumberWithZero(getRandomNumberBetween(0, 23), 2);
-  const minutes = padNumberWithZero(getRandomNumberBetween(0, 59), 2);
-  const time = `${hours}:${minutes}`;
-  return time;
+  const startHours = getRandomNumberBetween(0, 23);
+  const startMinutes = getRandomNumberBetween(0, 10);
+
+  let endHours = getRandomNumberBetween(startHours, 23);
+  let endMinutes;
+
+  if (endHours === startHours) {
+      endMinutes = getRandomNumberBetween(startMinutes + 1, 11);
+  } else {
+    endMinutes = getRandomNumberBetween(0, 11);
+  }
+
+  if (endHours === startHours && endMinutes - startMinutes == 0) {
+    endMinutes = startMinutes + 1;
+  }
+
+  const startTime = padNumberWithZero(startHours, 2) + ':' + padNumberWithZero(startMinutes * 5, 2);
+  const endTime = padNumberWithZero(endHours, 2) + ':' + padNumberWithZero(endMinutes * 5, 2);
+
+  return {
+    startTime,
+    endTime
+  }
 }
 
 function generateRandomEventVenue() {
@@ -159,6 +181,3 @@ function calculateBrightness(r, g, b) {
   return (r * 299 + g * 587 + b * 114) / 1000;
 }
 
-
-
-  

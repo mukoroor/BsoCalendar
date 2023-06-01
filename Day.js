@@ -5,7 +5,6 @@ import Timeline from "./Timeline.js"
 import Year from "./Year.js"
 import Month from "./Month.js"
 import UI from "./UI.js"
-import PopUp from "./PopUp.js"
 
 export default class Day extends UI {
     static focus = createFocus()
@@ -22,6 +21,8 @@ export default class Day extends UI {
         const dayNumContainer = document.createElement("div")
         const eventsContainer = document.createElement("div")
         dayNumContainer.textContent = dayNumber
+        this.getElement().style.gridRow = Math.floor((dayNumber - 1)/ 7) + 1
+        this.getElement().style.gridColumn = dayNumber % 7 || 7
         this.getElement().classList.add("day")
         this.getElement().append(dayNumContainer, eventsContainer)
         this.getElement().addEventListener("click", () => {
@@ -31,7 +32,6 @@ export default class Day extends UI {
                     Day.focus.selectionSet.forEach(e => {
                         this.addCalEventUI(e)
                     })
-                    // this.#move.setAttribute("icon", "move" + Day.focus.selectionSet.size())
                 }
                 Day.focus.selectionSet = new Set()
             }
@@ -50,7 +50,7 @@ export default class Day extends UI {
         Day.focus.newestEvent = eventUI
         // gsap.from(eventUI.getElement().firstElementChild, {color: "green"})
         Timeline.showTimeline()
-        eventUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
+        // eventUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
         Day.dataPanel.setData()
         
     }
@@ -100,24 +100,152 @@ export default class Day extends UI {
         return arr
     }
 
-    groupByHour() {
-        const eventsByHour = new Map();
+    // groupEventsByTime() {
+    //     const groups = {};
+    //     const events =  this.getEventArray()
+    //     for (const event of events) {
+    //         const _e = event.getCalendarEvent()
+    //         const key = _e.getTimeRangeString();
+    //         if (!groups[key]) {
+    //             groups[key] = [];
+    //         }
+    //         groups[key].push(event);
+    //     }
+    //     return groups
+    // }
+    // groupEventsByFlow() {
+    //     console.time("a")
+    //     const master = []
+    //     const events =  this.getEventArray()
+    //     if (events.length) {
+    //         master.push([events[0]])
+    //     }
+        
+    //     for (let i = 1; i < events.length; i++) {
+    //         let a = events[i]
+    //         let k = 0
+    //         let best = {val: 1, index: -1}
+    //         while(k < master.length) {
+    //             let b = master[k]
+    //             let tempVal = CalendarEvent.compareTime(a.getCalendarEvent().getStartTime(), b[b.length - 1].getCalendarEvent().getEndTime())
+    //             if (!tempVal) {
+    //                 best.index = k
+    //                 break
+    //             }
+                
+    //             if (tempVal > -1 && tempVal > best.val) {
+    //                 best.val = tempVal
+    //                 best.index = k
+    //             } else {
+    //                 k++
+    //             }
+    //         }
+    //         if (best.index == -1 ) master.push([a])
+    //         else master[best.index].push(a)
+    //     }
+    //     console.timeEnd("a")
+    //     return master
+    // }
+
+    // groupEventsByFlowOther() {
+    //     console.time("b")
+    //     const master = []
+    //     const events =  this.getEventArray()
+    //     if (events.length) {
+    //         master.push([events[0]])
+    //     }
+        
+    //     for (let i = 1; i < events.length; i++) {
+    //         let a = events[i]
+    //         let k = 0
+    //         let best = {val: 2400, index: -1}
+    //         while(k < master.length) {
+    //             let b = master[k]
+    //             let tempVal = CalendarEvent.compareTime(a.getCalendarEvent().getStartTime(), b[b.length - 1].getCalendarEvent().getEndTime())
+    //             if (!tempVal) {
+    //                 best.index = k
+    //                 break
+    //             }
+                
+    //             if (tempVal > -1 && tempVal < best.val) {
+    //                 best.val = tempVal
+    //                 best.index = k
+    //             } else {
+    //                 k++
+    //             }
+    //         }
+    //         if (best.index == -1 ) master.push([a])
+    //         else master[best.index].push(a)
+    //     }
+    //     console.timeEnd("b")
+    //     return master
+    // }
+
+    groupEventsByFlowStartTime() {
+        console.time("c")
+        const eventsByStartTime = new Map()
         const events =  this.getEventArray()
         for (const event of events) {
-            const hour = event.getCalendarEvent().getHour()
-            if (eventsByHour.has(hour)) {
-                eventsByHour.get(hour).push(event);
+            const start = event.getCalendarEvent().getStartTime()
+            if (eventsByStartTime.has(start)) {
+                eventsByStartTime.get(start).push(event);
             } else {
-                eventsByHour.set(hour, [event]);
+                eventsByStartTime.set(start, [event]);
             }
         }
-        return eventsByHour
+
+        let finArr = Array.from(eventsByStartTime.keys())
+
+        const master = []
+
+        let count = 0
+        while (count != events.length) {
+            const flow = []
+            for (const startTime of finArr) {
+                let arr = eventsByStartTime.get(startTime)
+                if (arr.length && (!flow.length || CalendarEvent.compareTime(flow[flow.length - 1].getCalendarEvent().getEndTime(), arr[arr.length - 1].getCalendarEvent().getStartTime()) < 1 )) {
+                    flow.push(arr.shift())
+                    count++
+                }
+            }
+            master.push(flow)
+        }
+
+        console.timeEnd("c")
+        return master
     }
+
+    // groupEvents() {
+    //     console.time("d")
+    //     const events =  this.getEventArray()
+    //     const isOverlap = (event1, event2) => {
+    //         return +event1.getCalendarEvent().getStartTime().replace(":", "") < +event2.getCalendarEvent().getEndTime().replace(":", "") && +event2.getCalendarEvent().getStartTime().replace(":", "") < +event1.getCalendarEvent().getEndTime().replace(":", "");
+    //       }
+      
+    //     const master = []
+
+    //     for (const event of events) {
+    //       let addedToGroup = false;
+      
+    //       for (const group of master) {
+    //         if (!group.some(existingEvent => isOverlap(event, existingEvent))) {
+    //           group.push(event);
+    //           addedToGroup = true;
+    //           break;
+    //         }
+    //       }
+      
+    //       if (!addedToGroup) {
+    //         master.push([event]);
+    //       }
+    //     }
+    //     console.timeEnd("d")
+    //     return master;
+    //   }
 
     moveFocusBlock() { 
         Day.focus.currDay = this
         Day.focus.selectionSet.forEach(e => e.getElement().classList.remove("select"))
-        // Day.focus.selectionSet = new Set()
         const pos = Day.focus.getPos()
         const newPos = Day.focus.calcNewPos()
         Day.focus.setPos(newPos.x, newPos.y)
@@ -214,18 +342,9 @@ function createDataPanel() {
             if (events.length) {
                 for (const e of events) {
                     if (e.isStarred()) starredCount++ 
-                    else break
-               }
-    
-                if (starredCount && starredCount !== events.length) {
-                    earliestTime = (CalendarEvent.compare(events[0].getCalendarEvent(), events[starredCount].getCalendarEvent()) < 0 ? 
-                    events[0].getCalendarEvent().getTime(): events[starredCount].getCalendarEvent().getTime())
-                    latestTime = (CalendarEvent.compare(events[events.length - 1].getCalendarEvent(), events[starredCount - 1].getCalendarEvent()) > 0 ? 
-                    events[events.length - 1].getCalendarEvent().getTime(): events[starredCount - 1].getCalendarEvent().getTime())
-                } else {
-                    earliestTime = events[0].getCalendarEvent().getTime()
-                    latestTime = events[events.length - 1].getCalendarEvent().getTime()
                 }
+                    earliestTime = events[0].getCalendarEvent().getStartTime()
+                    latestTime = events[events.length - 1].getCalendarEvent().getStartTime()
             }
     
             const star = this.#starred.firstChild
@@ -279,16 +398,19 @@ function createControlPanel() {
             const finish = () => {
                 Day.focus.currDay.addCalEventUI(_p.saveCalendarEvent())
                 _p.close()
-                PopUp.dialog.firstElementChild.removeEventListener("click", finish)
+                // PopUp.dialog.firstElementChild.removeEventListener("click", finish)
             }
             _p.open()
             _p.checkData().then(() => {
-                PopUp.dialog.firstElementChild.addEventListener("click", finish)
-            })
+                finish()
+            }, () => {
+                console.log("rejected")
+                _p.close()})
         }
 
         rand() {
             Day.focus.currDay.addCalEventUI(CalendarEventUI.popUp.randomCalendarEvent())
+            CalendarEventUI.popUp.fillValues()
         }
 
         deleteAll() {

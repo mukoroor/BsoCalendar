@@ -7,7 +7,8 @@ export default class PopUp extends UI {
     static dialog = document.querySelector("dialog")
     #nameInput
     #descriptionInput
-    #timeInput
+    #startTimeInput
+    #endTimeInput
     #venueInput
     #colorInput
 
@@ -18,22 +19,27 @@ export default class PopUp extends UI {
         this.#nameInput.type = 'text'
         this.#descriptionInput = document.createElement("input")
         this.#descriptionInput.type = 'text'
-        this.#timeInput = document.createElement("input")
-        this.#timeInput.type = 'time'
+        this.#startTimeInput = document.createElement("input")
+        this.#startTimeInput.type = 'time'
+        this.#startTimeInput.step = 300
+        this.#endTimeInput = document.createElement("input")
+        this.#endTimeInput.type = 'time'
+        this.#endTimeInput.step = 300
         this.#venueInput = document.createElement("input")
         this.#venueInput.type = 'text'
         this.#colorInput = document.createElement("input")
         this.#colorInput.type = 'color'
-        this.getElement().append(this.#nameInput, this.#descriptionInput, this.#timeInput, this.#venueInput, this.#colorInput)
+        this.getElement().append(this.#nameInput, this.#descriptionInput, this.#startTimeInput, this.#endTimeInput, this.#venueInput, this.#colorInput)
 
         
     }
 
 
-    fillValues(e = {eventName: "", eventDescription: "", eventTime: "", eventVenue: "", eventColor: "#000000"}) {
+    fillValues(e = {eventName: "", eventDescription: "", eventStartTime: "", eventEndTime: "23:59", eventVenue: "", eventColor: "#000000"}) {
         this.#nameInput.value = e.eventName
         this.#descriptionInput.value = e.eventDescription
-        this.#timeInput.value = e.eventTime
+        this.#startTimeInput.value = e.eventStartTime
+        this.#endTimeInput.value = e.eventEndTime
         this.#venueInput.value = e.eventVenue
         this.#colorInput.value = e.eventColor
     }
@@ -42,27 +48,38 @@ export default class PopUp extends UI {
         const valMap = new Map();
         valMap.set("name", this.#nameInput.value)
         valMap.set("description", this.#descriptionInput.value)
-        valMap.set("time", this.#timeInput.value)
+        valMap.set("startTime", this.#startTimeInput.value)
+        valMap.set("endTime", this.#endTimeInput.value)
         valMap.set("venue", this.#venueInput.value)
         valMap.set("color", this.#colorInput.value)
         return valMap
     }
 
     checkData() {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            const cross = this.getElement().previousElementSibling
             const isValid = () => {
                 for (const val of this.getData().values()) {
                     if (!val) {
-                        PopUp.dialog.firstElementChild.setAttribute("data-valid", 0) //0 is false
+                        cross.setAttribute("data-valid", 0) //0 is false
                         return
                     }
                 }
-                PopUp.dialog.firstElementChild.setAttribute("data-valid", 1) //1 is true
-                this.getElement().removeEventListener("input", isValid) 
-                resolve()
+                cross.setAttribute("data-valid", 1) //1 is true
             }
 
+            const submit = () => {
+                cross.removeEventListener("click", submit)
+                this.getElement().removeEventListener("input", isValid)
+                if (+cross.getAttribute("data-valid")) {
+                    resolve()
+                } else {
+                    reject()
+                }
+            }
+            
             this.getElement().addEventListener("input", isValid) 
+            cross.addEventListener("click", submit)
         })
     }
 
@@ -83,6 +100,6 @@ export default class PopUp extends UI {
     close() {
         this.getElement().parentElement.close()
         this.fillValues()
-        PopUp.dialog.firstElementChild.setAttribute("data-valid", 0) //0 is false
+        this.getElement().previousElementSibling.setAttribute("data-valid", 0) //0 is false
     }
 }

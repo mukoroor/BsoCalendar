@@ -22,11 +22,12 @@ export default class CalendarEventUI extends UI {
         star.classList.add("material-symbols-rounded", "star")
 
         star.textContent = "star"
-        star.setAttribute("boolean", this.#starred)
         star.addEventListener("click", (e) => {
-            Day.focus.currDay.removeCalEventUI(this)
-            star.setAttribute("boolean", this.#starred = !this.#starred)
-            Day.focus.currDay.addCalEventUI(this)
+            this.#starred = !this.#starred
+            this.getElement().classList.toggle("starred", this.#starred)
+            this.getEventCard()?.classList.toggle("starred", this.#starred)
+            this.getMinEventCard()?.classList.toggle("starred", this.#starred)
+            Day.dataPanel.setData()
             e.stopPropagation()
         })
 
@@ -70,6 +71,7 @@ export default class CalendarEventUI extends UI {
         eventCard.replaceChildren(eventHeader, description)
     
         eventCard.classList.add("eventCard")
+        eventCard.classList.toggle("starred", this.#starred)
         
         nameSpan.textContent = this.#calendarEvent.getName()
         venueSpan.textContent = this.#calendarEvent.getVenue()
@@ -84,11 +86,12 @@ export default class CalendarEventUI extends UI {
     setMinEventCard() {
         if (this.#minEventCard) return
         const minEventCard = document.createElement("div")
-        const data = document.createElement("p")
+        const data = document.createElement("div")
     
         minEventCard.replaceChildren(data)
 
         minEventCard.classList.add("eventCard")
+        minEventCard.classList.toggle("starred", this.#starred)
     
         data.textContent = `${this.#calendarEvent.getName()}\n${this.#calendarEvent.getVenue()}`
         minEventCard.style.setProperty("--bColor", this.#calendarEvent.getColor())
@@ -114,13 +117,8 @@ export default class CalendarEventUI extends UI {
     }
 
     static compare(a, b) {
-        if (a.isStarred() === b.isStarred()) {
-            return CalendarEvent.compare(a.getCalendarEvent(), b.getCalendarEvent())
-        } else if (a.isStarred()) {
-            return -1
-        } else {
-            return 1
-        }
+        return CalendarEvent.compare(a.getCalendarEvent(), b.getCalendarEvent())
+
     }
 
     isStarred() {
@@ -132,26 +130,30 @@ export default class CalendarEventUI extends UI {
             const _c = this.#calendarEvent
             const _p = CalendarEventUI.popUp
             _p.fillValues({eventName: _c.getName(), eventDescription: _c.getDescription(),
-                eventTime: _c.getTime(), eventVenue: _c.getVenue(), eventColor: _c.getColor()})
+                eventStartTime: _c.getStartTime(), eventEndTime: _c.getEndTime(), eventVenue: _c.getVenue(), eventColor: _c.getColor()})
             const finish = () => {
-                if (+PopUp.dialog.firstElementChild.getAttribute("data-valid")) {
+                if (+_p.getElement().previousElementSibling.getAttribute("data-valid")) {
                     const data = _p.getData()
                     Day.focus.currDay.removeCalEventUI(this)
                     _c.setName(data.get("name"))
                     _c.setDescription(data.get("description"))
-                    _c.setTime(data.get("time"))
+                    _c.setStartTime(data.get("startTime"))
+                    _c.setEndTime(data.get("endTime"))
                     _c.setVenue(data.get("venue"))
                     _c.setColor(data.get("color"))
                     this.updateDisplayedData()
                     Day.focus.currDay.addCalEventUI(this)
                 }
                 _p.close()
-                PopUp.dialog.firstElementChild.removeEventListener("click", finish)
+                _p.getElement().previousElementSibling.removeEventListener("click", finish)
                 resolve()
             }
             _p.open()
             _p.checkData().then(() => {
-                PopUp.dialog.firstElementChild.addEventListener("click", finish)
+                _p.getElement().previousElementSibling.addEventListener("click", finish)
+            }, () => {
+                _p.close()
+                resolve()
             })
         })
     }

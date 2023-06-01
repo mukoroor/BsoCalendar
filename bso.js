@@ -58,10 +58,13 @@ for (let i = 0; i < buttons.length; i++) {
 body.addEventListener("keydown", e => {
     if (e.key === 'q') {
         Day.controlPanel.rand()
+        // console.log(Day.focus.currDay.groupEventsByFlowStartTime().map(e => e.map(x => x.getCalendarEvent().getTimeRangeString())))
     }
     if (e.ctrlKey && e.key === "b") {
         const click = new Event("click")
-        Day.focus.currDay.getEventArray().forEach(el => el.dispatchEvent(click))
+        Day.focus.currDay.getEventArray().forEach(el => {
+            if (!el.getElement().classList.contains("select")) el.dispatchEvent(click)
+        })
     }
 })
 
