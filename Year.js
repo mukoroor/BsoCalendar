@@ -17,6 +17,10 @@ export default class Year {
         Year.yearMap.set(yearNumber, this)
     }
 
+    getMonths() {
+        return this.#months
+    }
+
     static getMonthData() {
         const curr = Year.yearMap.get(Year.currentYear).#months[Month.monthIndex]
         const header  = Month.monthNames[Month.monthIndex] + ' | ' + Year.currentYear

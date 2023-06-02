@@ -27,27 +27,6 @@ export default class Month extends UI {
                 this.addDay(i, new Day(i))
             }
         }
-        this.getElement().setAttribute("tabindex", "-1")
-        this.getElement().addEventListener("keydown", e => {
-            const curr = Day.focus.currDay.getDayNumber()
-            if (e.key === "ArrowUp") {
-                if (curr > 7) {
-                    this.#dayMap.get(curr - 7).moveFocusBlock()
-                }
-            } else if (e.key === "ArrowDown") {
-                if (curr < this.#dayMap.size - 6) {
-                    this.#dayMap.get(curr + 7).moveFocusBlock()
-                }
-            } else if (e.key === "ArrowLeft") {
-                if (curr % 7 != 1) {
-                    this.#dayMap.get(curr - 1).moveFocusBlock()
-                }
-            } else if (e.key === "ArrowRight") {
-                if (curr % 7) {
-                    this.#dayMap.get(curr + 1).moveFocusBlock()
-                }
-            }
-        })
         this.getElement().classList.add("monthDays", "card")
     }
 

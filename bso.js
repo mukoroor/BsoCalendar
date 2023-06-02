@@ -71,6 +71,26 @@ body.addEventListener("keydown", e => {
             if (!el.getElement().classList.contains("select")) el.dispatchEvent(click)
         })
     }
+    
+    const curr = Day.focus.currDay.getDayNumber()
+    const map = Year.yearMap.get(Year.currentYear).getMonths()[Month.monthIndex].getDayMap()
+    if (e.key === "ArrowUp") {
+        if (curr > 7) {
+            map.get(curr - 7).moveFocusBlock()
+        }
+    } else if (e.key === "ArrowDown") {
+        if (curr < map.size - 6) {
+            map.get(curr + 7).moveFocusBlock()
+        }
+    } else if (e.key === "ArrowLeft") {
+        if (curr % 7 != 1) {
+            map.get(curr - 1).moveFocusBlock()
+        }
+    } else if (e.key === "ArrowRight") {
+        if (curr % 7) {
+            map.get(curr + 1).moveFocusBlock()
+        }
+    }
 })
 
 // function getCssVariableValue(element, varName, unit) {
