@@ -408,13 +408,11 @@ function createControlPanel() {
             const finish = () => {
                 Day.focus.currDay.addCalEventUI(_p.saveCalendarEvent())
                 _p.close()
-                // PopUp.dialog.firstElementChild.removeEventListener("click", finish)
             }
             _p.open()
-            _p.checkData().then(() => {
-                finish()
-            }, () => {
-                _p.close()})
+            _p.queryData()
+            .then(finish)
+            .catch(() => _p.close())
         }
 
         rand() {

@@ -55,7 +55,7 @@ export default class PopUp extends UI {
         return valMap
     }
 
-    checkData() {
+    queryData() {
         return new Promise((resolve, reject) => {
             const cross = this.getElement().previousElementSibling
             const isValid = () => {
@@ -77,9 +77,8 @@ export default class PopUp extends UI {
                     reject()
                 }
             }
-            
-            this.getElement().addEventListener("input", isValid) 
             cross.addEventListener("click", submit)
+            this.getElement().addEventListener("input", isValid) 
         })
     }
 

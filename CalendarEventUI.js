@@ -149,7 +149,7 @@ export default class CalendarEventUI extends UI {
                 resolve()
             }
             _p.open()
-            _p.checkData().then(() => {
+            _p.queryData().then(() => {
                 _p.getElement().previousElementSibling.addEventListener("click", finish)
             }, () => {
                 _p.close()
