@@ -7,25 +7,28 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     color: rgb(var(--textColor));
+    /* transition: background 1s ease-in-out; */
 }
 
 
 body {
-    background-color:var(--bG);
-    overflow: hidden;
+    /* overflow: hidden; */
     --sL: 8vmax;
     --pGap: 0.5vmax;
     --a: 0;
-    /* colors */
-    
-    /* dark */
+    background-color:var(--bG);
+}
+
+body.dark {
     --accentC: 230, 50%, 40%;
     --bG: #7d7d7d;
     --bC: 125, 125, 125;
     --primaryC: 44, 48, 46;
     --secondaryC: 53, 61, 61;
     --textColor: 255, 255, 255;
-    /* light */
+}
+
+body.light {
     --bG: #ffffff;
     --bC: 73, 73, 77;
     --accentC: 230, 50%, 62.75%;
@@ -160,7 +163,7 @@ input {
     --h: 1.75em;
     --baseColor: color-mix(in srgb, rgba(var(--secondaryC), var(--op)), rgb(var(--primaryC)));
     position: relative;
-    transition: all 0.25s;
+    transition: outline 0.25s;
     outline: 2px solid transparent;
     background-color: var(--baseColor);
 }
@@ -260,7 +263,8 @@ input {
     justify-content: center;
     align-items: center;
     /* z-index: 2; */
-    transition: all 0.25s;
+    transition-property: transform, color, background;
+    transition-duration: 0.25s;
     background: color-mix(in hsl, hsl(0, 0%, 15%) 5%, hsl(var(--background)));
 }
 
@@ -622,7 +626,7 @@ input {
     box-shadow: 0 0 0.5ex black;
     padding: 0.5ex 1ex;
     font-weight: 350;
-    transition: all 2s;
+    /* transition: all 2s; */
 }
 
 .hourCard {
@@ -667,6 +671,14 @@ input {
   'GRAD' 200,
   'opsz' 48;
 }
+
+#month .material-symbols-rounded {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 1000,
+    'GRAD' 1000,
+    'opsz' 48;
+} 
 
 #dataPanel > div:not(:first-child) {
     display: flex;
