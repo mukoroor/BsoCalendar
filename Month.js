@@ -20,7 +20,7 @@ export default class Month extends UI {
         for (let i = 1; i < Month.dayCounts[index] + 1; i++) {
             if (Year.currentYear == yearNumber && Month.monthIndex == index && newDate.getDate() == i) {
                 const today = new Day(i);
-                Day.focus.currDay = today
+                Day.focus.setDay(today)
                 today.getElement().firstElementChild.id = "today"
                 this.addDay(i, today)
             } else {
@@ -42,7 +42,7 @@ export default class Month extends UI {
     setFocusDay() {
         const currDayNum =  Day.focus.currDay.getDayNumber()
         const focusedDayNum = (this.#dayMap.has(currDayNum) ? currDayNum : 1)
-        Day.focus.currDay = this.#dayMap.get(focusedDayNum) 
+        Day.focus.setDay(this.#dayMap.get(focusedDayNum))
         Day.focus.setPos(...Object.values(Day.focus.calcNewPos()), true)
         Day.dataPanel.setData()
         Timeline.timelineInstances[Timeline.currTimelineIndex].clearElement()

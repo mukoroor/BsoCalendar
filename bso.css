@@ -1,16 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Changa&family=Sen&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');
-
 * {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
     font-family: "JetBrains Mono", monospace;
-    /* font-family: 'Bebas Neue', cursive; */
-    /* font-family: 'Changa', sans-serif; */
-    /* font-family: 'Sen', sans-serif; */
-    /* font-family: 'IBM Plex Mono', monospace; */
     cursor: default;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -25,27 +17,26 @@ body {
     --pGap: 0.5vmax;
     --a: 0;
     /* colors */
-    /* light */
     
-    --accentC: 255, 67, 95;
-    --bG: #909590;
-    --bG: white ;
-    --primaryC: #2c302e;
-    --secondaryC:71, 74, 72;
-    --secondaryC:44, 48, 46;
-    --tertiaryC: #42634D;
-    --textColor: 255, 255, 255;
     /* dark */
-    /* --bG: #FFF7FB;
-    --primaryC: white;
-    --secondaryC: 255, 205, 188;
-    --tertiaryC: #e29fff;
-    --textColor: 0, 26, 35; */
+    --accentC: 230, 50%, 40%;
+    --bG: #7d7d7d;
+    --bC: 125, 125, 125;
+    --primaryC: 44, 48, 46;
+    --secondaryC: 53, 61, 61;
+    --textColor: 255, 255, 255;
+    /* light */
+    --bG: #ffffff;
+    --bC: 73, 73, 77;
+    --accentC: 230, 50%, 62.75%;
+    --primaryC: 200, 201, 210;
+    --secondaryC: 242, 244, 255;
+    --textColor: 40, 10, 40;
 }
 
 button {
     background: none;
-    outline: none;
+    /* outline: none;                    */
     border: none;
 }
 
@@ -68,8 +59,7 @@ input {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgba(var(--secondaryC), 0.75);
-    background-color: white;
+    background-color: rgba(var(--bC), 0.75);
     border-radius: calc(0.5 * var(--pGap));
 }
 
@@ -93,10 +83,10 @@ input {
 }
 
 .card {
-    background-color: var(--primaryC);
+    background-color: rgb(var(--primaryC));
     padding: var(--pGap);
     border-radius: 0.75vmax;
-    box-shadow: 0 0 calc(0.5 * var(--pGap)) rgb(105, 105, 105);
+    /* box-shadow: 0 0 calc(0.5 * var(--pGap)) rgb(105, 105, 105); */
 }
 
 .header {
@@ -158,7 +148,7 @@ input {
     position: relative;
     z-index: 1;
     content: "";
-    outline: var(--pGap) solid var(--primaryC);
+    outline: var(--pGap) solid rgb(var(--primaryC));
     outline-offset: var(--gap);
     background: transparent;
     border-radius: 0.25vmax;
@@ -166,13 +156,25 @@ input {
 }
 
 .day {
-    position: relative;
+    --op: 1;
     --h: 1.75em;
-    outline: 1px solid rgba(255, 255, 255, 0.02);
-    background-color: rgb(var(--secondaryC));
+    --baseColor: color-mix(in srgb, rgba(var(--secondaryC), var(--op)), rgb(var(--primaryC)));
+    position: relative;
+    transition: all 0.25s;
+    outline: 2px solid transparent;
+    background-color: var(--baseColor);
+}
+
+.day.select {
+    outline: 2px solid rgba(var(--bC), 0.5);
+}
+
+.day:not(.select):hover {
+    outline: 2px dashed rgba(var(--bC), 1);
 }
 
 .day::before, .day::after {
+    --op: 0.72;
     content: "";
     position: absolute;
     width: 100%;
@@ -182,15 +184,16 @@ input {
 
 .day::before {
     top: var(--h);
-    background: linear-gradient(to top, transparent, rgba(var(--secondaryC), 0.75));
+    background: linear-gradient(to top, transparent, var(--baseColor));
 }
 
 .day::after {
     bottom: 0;
-    background: linear-gradient(to bottom, transparent, rgba(var(--secondaryC), 0.75));
+    background: linear-gradient(to bottom, transparent, var(--baseColor));
 }
 
 .day > div:first-of-type {
+    font-weight: 500;
     height: var(--h);
     line-height: 100%;
     padding: 0.5em 0.5em 0;
@@ -215,78 +218,116 @@ input {
     align-items: center;
     justify-items: center;
     gap: var(--gap);
-    border-bottom-right-radius: 0.5vmax;
+    position: relative;
+    background-color: rgb(var(--primaryC));
+    /* border-radius: 0.6vmax; */
+    /* border-bottom-right-radius: 0.5vmax; */
 }
 
 #controlPanel > * {
+    --background: var(--accentC);
     position: relative;
     width: 100%;
     height: 100%;
 }
 
+#controlPanel > *[icon="add"] {
+    --background: 149, 82%, 35%;
+}
+
+#controlPanel > *[icon="delete"] {
+    --background: 6, 90%, 49%;
+}
+
+/* #controlPanel > *[icon="edit"] {
+    --background:18, 16;
+}
+
+#controlPanel > *[icon="move_group"] {
+    --background:18, 168, 126;
+} */
+
 #controlPanel > *::before, #controlPanel > *::after {
     position: absolute;
-    border-radius: 7.5%;
+    border-radius: 0.25vmax;
 }
 
 #controlPanel > *::before {
     inset: 0;
     content: attr(icon);
+    font-size: 1.25em;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2;
-    background: color-mix(in srgb, rgb(var(--secondaryC)), rgb(228, 13, 13));
+    /* z-index: 2; */
+    transition: all 0.25s;
+    background: color-mix(in hsl, hsl(0, 0%, 15%) 5%, hsl(var(--background)));
+}
+
+#controlPanel > *:hover::before {
+    /* color: rgb(var(--primaryC)); */
 }
 
 #controlPanel > *:active::before {
-    background: color-mix(in srgb, rgb(var(--secondaryC)), rgb(150, 0, 0));
+    transform: scale(0.95);
+    color: unset;
+    transform-origin: center;
 }
 
-#controlPanel > *::after {
+/* #controlPanel::after {
+    position: absolute;
     content: "";
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    height: 2vmax;
+    width: 2vmax;
+    transform: translate(-50%, -50%);
     opacity: 0;
     z-index: 1;
-    inset: -1px;
-    transition: all 1s;
-    background: conic-gradient(from var(--a), rgb(var(--accentC)), white, transparent 25%, transparent, transparent,rgb(var(--accentC)));
+    inset: -2px;
+    transition: all 0.25s;
+    background: conic-gradient(from var(--a), hsl(var(--accentC)), rgb(var(--textColor)), transparent 25%, transparent, transparent, hsl(var(--accentC)));
+    background: rgb(var(--textColor));
 }
 
-#controlPanel > *:hover::after {
+#controlPanel:hover::after {
     opacity: 1;
-}
+} */
 
-#controlPanel > *:active::after {
-    opacity: 0;
-}
 
 #dataPanel {
     grid-row-start: 5;
     gap: 0 var(--pGap);
     grid-template-columns: max-content 1fr;
+    /* border: calc(var(--pGap) / 2) solid #F57E00; */
+    box-shadow: inset 0 0 1ex rgba(0, 0, 0, 0.25);
     grid-template-rows: repeat(5, 1fr);
     grid-auto-flow: column;
     grid-column: 5/-2;
     background: var(--tertiaryC);
+    background: transparent;
     margin-left: 0.1vmax;
 }
 
 #dataPanel, #controlPanel {
     display: grid;
+    background: rgba(var(--primaryC), 0.25);
     margin-top: 0.1vmax;
-    border-top-left-radius: 0.15vmax;
-    border-top-right-radius: 0.15vmax 0.25vmax;
-    border-bottom-left-radius: 0.25vmax 0.15vmax;
+    /* border-radius: 0.25vmax; */
 }
 
-#dataPanel > * {
+
+
+/* #dataPanel > * {
     text-shadow: 0.1ex 0.1ex black;
-    text-shadow: 0.1ex 0.1ex white;
-}
+    text-shadow: 0.1ex 0.1ex rgb(var(--textColor));
+} */
 
 #dataPanel div {
     white-space: pre;
-    font-size: 1em;;
+    font-size: 1em;
+    /* background: #F57E00; */
 }
 
 #dataPanel div:first-child {
@@ -296,8 +337,9 @@ input {
     font-size: 3em;
     font-weight: 500;
     grid-row: 1/ -1;
-    background: rgb(142, 142, 200);
-    filter: drop-shadow(0 0 0.2ex rgba(0, 0, 0, 0.25));
+    background: rgb(var(--primaryC));
+    background: transparent;
+    /* box-shadow: inset 0 0 1ex rgba(0, 0, 0, 0.25); */
     border-radius: 5%;
     display: inline-flex;
     align-items: center;
@@ -311,26 +353,27 @@ input {
     margin: var(--pGap);
     z-index: 0;
     transform-origin: center;
+    border-radius: 50%;
+    background: color-mix(in hsl, rgb(var(--textColor)) 25%, hsl(var(--accentC)));
+    transform: scale(2);
+    filter: blur(15px);
 }
 
-#focus::after {
+/* #focus::after {
     content: "";
     position: absolute;
     inset: calc(-1 * var(--gap));
-    transform: scale(1.25);
     transform-origin: center;
-    border-radius: 50%;
-    background: conic-gradient(from var(--a), #ffffff, #D7F3D5, #B7E6B8, #96D996, #76CC7A, #57BF5D, #39B241, #1DA523, #16921c, #1DA523, #39B241, #57BF5D, #76CC7A, #96D996, #B7E6B8, #D7F3D5, #ffffff);
-    filter: blur(20px);
-}
+} */
 
 #today {
-    background: rgb(var(--accentC));
+    background: hsl(var(--accentC));
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
 }
 
 #eventDialog {
+    --r: 20px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -342,6 +385,12 @@ input {
     padding-top: 2.5vmax;
     border-radius: 0.3em;
 }
+
+/* #eventDialog::backdrop {
+    --x: 50%;
+    --y: var(--r);
+    background: radial-gradient(circle at var(--x) var(--y), orange, rgb(var(--textColor)), transparent);
+} */
 
 #eventDialog > div {
     display: flex;
@@ -409,15 +458,15 @@ input {
 }
 
 .nav > * {
-    font-size: 1em;
     position: relative;
     line-height: 100%;
     z-index: 1;
-    width: 1.5vmax;
+    width: 2vmax;
     height: 1vmax;
 }
 
 #month .nav > * {
+    font-size: 1em;
     width: auto;
 }
 
@@ -426,8 +475,10 @@ input {
     left: var(--pGap);
     transform: scale(1.5);
     transform-origin: center;
-    background: rgb(var(--accentC));
-    border-radius: 15%/20%;
+    background: hsl(var(--accentC));
+    box-shadow: inset 0 0 0.3ex rgba(0, 0, 0, 0.3);
+    border: 1px solid rgb(var(--textColor));
+    border-radius: 0.15ex;
 }
 
 .view {
@@ -440,7 +491,7 @@ input {
     height: 100%;
     width: 100%;
     overflow: auto;
-    filter: drop-shadow(0 0 calc(var(--pGap) / 4) rgba(0, 0, 0, 0.3));
+    box-shadow: 0 0 var(--pGap) rgba(0, 0, 0, 0.05);
     border-radius: 0.25vmax;
     position: absolute;
     background: inherit;
@@ -477,7 +528,7 @@ input {
     bottom: 0;
     height: var(--pGap);
     width: 100%;
-    background: var(--primaryC);
+    background: rgb(var(--primaryC));
 }
 
 .hourCard-container  {
@@ -564,8 +615,8 @@ input {
 }
 
 .listCard p {
-    background: radial-gradient(circle at 0% 100%, var(--primaryC), transparent), linear-gradient(65deg, transparent, transparent, var(--primaryC));
-    /* background: linear-gradient(65deg, var(--bColor), var(--bColor), var(--primaryC)), radial-gradient(circle at 0% 100%, var(--primaryC), var(--bColor)); */
+    background: radial-gradient(circle at 0% 100%, rgb(var(--primaryC)), transparent), linear-gradient(65deg, transparent, transparent, rgb(var(--primaryC)));
+    /* background: linear-gradient(65deg, var(--bColor), var(--bColor), rgb(var(--primaryC))), radial-gradient(circle at 0% 100%, rgb(var(--primaryC)), var(--bColor)); */
     background-blend-mode: multiply;
     border-radius: inherit;
     box-shadow: 0 0 0.5ex black;
@@ -594,15 +645,15 @@ input {
     max-width: calc(100% - 2ex);
 }
 
-.clamp .hourCard p {
+/* .clamp .hourCard p {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
     align-self: center;
-}
+} */
 
 .showNewEvent {
-    outline-color: rgb(var(--accentC));
+    outline-color: hsl(var(--accentC));
 }
 
 #dayView[group-expanded="true"] > *:not(.hour, .expanded) {
@@ -614,7 +665,7 @@ input {
   'FILL' 0,
   'wght' 300,
   'GRAD' 200,
-  'opsz' 48
+  'opsz' 48;
 }
 
 #dataPanel > div:not(:first-child) {

@@ -14,7 +14,7 @@ const body = document.querySelector("body")
 setInterval(() => {
     body.style.setProperty("--a", `${++i % 360}deg`)
     // if ((new Date()).getDate() !== todayDate.getDate()) {
-}, 10)
+}, 250)
 
 const calendarContainer = document.getElementById("calendar") //holds all days Divs
 const monthTextContainer = document.getElementById("monthText") //holds name of current Month
@@ -50,7 +50,7 @@ const buttons =[...nav.querySelectorAll("button")]
 for (let i = 0; i < buttons.length; i++) {
     const button = buttons[i];
     button.addEventListener("click", () => {
-        gsap.to(nav.querySelector("div"), {duration: 1, x: `${i * 2}vmax`, ease: "power4.out"})
+        gsap.to(nav.querySelector("div"), {duration: 1, x: `${i * 2.5}vmax`, ease: "power4.out"})
         Timeline.showTimeline(i)
     }, false)
 }

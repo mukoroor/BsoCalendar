@@ -114,7 +114,7 @@ function getRandomColor() {
   //   "#F0E68C", "#ADD8E6", "#FFB6C1", "#D3D3D3", "#FFE4B5",
   //   "#B0C4DE", "#FFFACD", "#C0C0C0", "#FFD700", "#AFEEEE"
   // ];
-  const colorList = generateColors(30)  
+  const colorList = generateColors(30, "#000000")  
   
   let color = colorList[Math.floor(Math.random() * colorList.length)];
 
@@ -128,21 +128,21 @@ function getRandomColor() {
   return color;
 }
 
-function generateColors(numColors) {
+function generateColors(numColors, desiredContrastColor) {
   const colors = [];
   for (let i = 0; i < numColors; i++) {
-    const color = generateRandomColor();
+    const color = generateRandomColor(desiredContrastColor);
     colors.push(color);
   }
   return colors;
 }
 
-function generateRandomColor() {
+function generateRandomColor(desiredContrastColor) {
   const contrastThreshold = 128; // Adjust this value as needed
   let color;
   do {
     color = getRandomHexColor();
-  } while (!hasGoodContrast(color, contrastThreshold));
+  } while (!hasGoodContrast(color, desiredContrastColor, contrastThreshold));
   return color;
 }
 
@@ -155,10 +155,12 @@ function getRandomHexColor() {
   return color;
 }
 
-function hasGoodContrast(color, contrastThreshold) {
-  const rgb = hexToRgb(color);
-  const brightness = calculateBrightness(rgb.r, rgb.g, rgb.b);
-  return Math.abs(brightness - 255) >= contrastThreshold;
+function hasGoodContrast(color, desiredContrastColor, contrastThreshold) {
+  const rgb1 = hexToRgb(color);
+  const rgb2 = hexToRgb(desiredContrastColor);
+  const brightness1 = calculateBrightness(rgb1.r, rgb1.g, rgb1.b);
+  const brightness2 = calculateBrightness(rgb2.r, rgb2.g, rgb2.b);
+  return Math.abs(brightness1 - brightness2) >= contrastThreshold;
 }
 
 function hexToRgb(hex) {
@@ -180,4 +182,5 @@ function hexToRgb(hex) {
 function calculateBrightness(r, g, b) {
   return (r * 299 + g * 587 + b * 114) / 1000;
 }
+
 

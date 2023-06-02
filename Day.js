@@ -10,6 +10,7 @@ export default class Day extends UI {
     static focus = createFocus()
     static dataPanel = createDataPanel()
     static controlPanel = createControlPanel()
+    // static clock = setInterval(() => h++, 100)
     #dayNumber
     #calendarEventUITree
 
@@ -36,6 +37,9 @@ export default class Day extends UI {
                 Day.focus.selectionSet = new Set()
             }
         }, true)
+
+        this.getElement().addEventListener("mouseenter", () => Day.dataPanel.setData(this))
+        this.getElement().addEventListener("mouseleave", () => Day.dataPanel.setData())
     }
 
     addCalEventUI(eventUI) {
@@ -244,7 +248,7 @@ export default class Day extends UI {
     //   }
 
     moveFocusBlock() { 
-        Day.focus.currDay = this
+        Day.focus.setDay(this)
         Day.focus.selectionSet.forEach(e => e.getElement().classList.remove("select"))
         const pos = Day.focus.getPos()
         const newPos = Day.focus.calcNewPos()
@@ -302,6 +306,12 @@ function createFocus() {
         getPos() {
             return { x: this.getElement().getAttribute("x"), y: this.getElement().getAttribute("y")}
         }
+
+        setDay(newDay) {
+            this.currDay?.getElement().classList.remove("select")
+            newDay.getElement().classList.add("select")
+            this.currDay = newDay
+        }
     }
     return new Focus()
 }
@@ -332,11 +342,11 @@ function createDataPanel() {
             this.getElement().append(this.#dayOfTheWeek, this.#starred, this.#count, this.#first, this.#last, this.#totalTime)
         }
 
-        setData() {
+        setData(day = Day.focus.currDay) {
             this.#dayOfTheWeek.textContent = 
-                new Date(Year.currentYear, Month.monthIndex, Day.focus.currDay.getDayNumber()).toLocaleString("en-US", { weekday: 'short' })
+                new Date(Year.currentYear, Month.monthIndex, day.getDayNumber()).toLocaleString("en-US", { weekday: 'short' })
             this.getElement().style.gridColumnStart = Month.dayCounts[Month.monthIndex] % 7 + 1
-            const events = Day.focus.currDay.getEventArray()
+            const events = day.getEventArray()
             let starredCount = 0
             let earliestTime, latestTime
             if (events.length) {
@@ -370,10 +380,10 @@ function createControlPanel() {
             super()
             this.getElement().id = "controlPanel"
 
-            this.#add = document.createElement("div")
-            this.#delete = document.createElement("div")
-            this.#edit = document.createElement("div")
-            this.#move = document.createElement("div")
+            this.#add = document.createElement("button")
+            this.#delete = document.createElement("button")
+            this.#edit = document.createElement("button")
+            this.#move = document.createElement("button")
 
             this.#add.setAttribute("icon", "add")
             this.#delete.setAttribute("icon", "delete")
@@ -404,7 +414,6 @@ function createControlPanel() {
             _p.checkData().then(() => {
                 finish()
             }, () => {
-                console.log("rejected")
                 _p.close()})
         }
 
