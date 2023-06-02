@@ -18,7 +18,7 @@ setInterval(() => {
 
 body.querySelector("#theme").addEventListener("click", function() {
     if (body.classList.toggle("dark")) gsap.to(this, {rotate: "0deg"})
-    if (body.classList.toggle("light")) gsap.to(this, {rotate: "-180deg"})
+    if (body.classList.toggle("light")) gsap.to(this, {rotate: "180deg"})
 })
 
 const calendarContainer = document.getElementById("calendar") //holds all days Divs

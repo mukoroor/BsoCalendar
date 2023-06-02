@@ -114,7 +114,7 @@ function getRandomColor() {
   //   "#F0E68C", "#ADD8E6", "#FFB6C1", "#D3D3D3", "#FFE4B5",
   //   "#B0C4DE", "#FFFACD", "#C0C0C0", "#FFD700", "#AFEEEE"
   // ];
-  const colorList = generateColors(30, "#000000")  
+  const colorList = generateColors(30, document.querySelector("body").classList.contains("dark") ? "#ffffff": "#280a28")  
   
   let color = colorList[Math.floor(Math.random() * colorList.length)];
 
@@ -138,7 +138,7 @@ function generateColors(numColors, desiredContrastColor) {
 }
 
 function generateRandomColor(desiredContrastColor) {
-  const contrastThreshold = 128; // Adjust this value as needed
+  const contrastThreshold = 160; // Adjust this value as needed
   let color;
   do {
     color = getRandomHexColor();
