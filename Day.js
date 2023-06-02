@@ -344,7 +344,7 @@ function createDataPanel() {
 
         setData(day = Day.focus.currDay) {
             this.#dayOfTheWeek.textContent = 
-                new Date(Year.currentYear, Month.monthIndex, day.getDayNumber()).toLocaleString("en-US", { weekday: 'short' })
+                new Date(Year.currentYear, Month.monthIndex, day.getDayNumber()).toLocaleString("en-US", { weekday: "short" })
             this.getElement().style.gridColumnStart = Month.dayCounts[Month.monthIndex] % 7 + 1
             const events = day.getEventArray()
             let starredCount = 0
