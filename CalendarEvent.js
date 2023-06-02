@@ -10,8 +10,10 @@ export default class CalendarEvent {
         this.#name = map.get("name") 
         this.#venue = map.get("venue") 
         this.#startTime = map.get("startTime") 
-        this.#endTime = map.get("endTime") 
-        this.#color = map.get("color") 
+        this.#endTime = map.get("endTime")
+        const h = map.get("colorHue")
+        const s =  map.get("colorSaturation")
+        this.#color = {h, s} 
         this.#description = map.get("description") 
     }
 

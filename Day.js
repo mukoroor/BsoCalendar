@@ -38,7 +38,7 @@ export default class Day extends UI {
             }
         }, true)
 
-        this.getElement().addEventListener("mouseenter", () => Day.dataPanel.setData(this))
+        this.getElement().addEventListener("mouseover", () => Day.dataPanel.setData(this))
         this.getElement().addEventListener("mouseleave", () => Day.dataPanel.setData())
     }
 

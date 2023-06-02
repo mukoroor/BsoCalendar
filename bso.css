@@ -20,6 +20,7 @@ body {
 }
 
 body.dark {
+    --lightness: 35%;
     --accentC: 230, 50%, 40%;
     --bG: #7d7d7d;
     --bC: 125, 125, 125;
@@ -29,6 +30,7 @@ body.dark {
 }
 
 body.light {
+    --lightness: 67.75%;
     --bG: #ffffff;
     --bC: 73, 73, 77;
     --accentC: 230, 50%, 62.75%;
@@ -263,7 +265,7 @@ input {
     justify-content: center;
     align-items: center;
     /* z-index: 2; */
-    transition-property: transform, color, background;
+    transition-property: transform;
     transition-duration: 0.25s;
     background: color-mix(in hsl, hsl(0, 0%, 15%) 5%, hsl(var(--background)));
 }
@@ -394,6 +396,14 @@ input {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+}
+
+#colorVisualizer {
+    --h: 180;
+    --s: 50%;
+    height: 3vmax;
+    width: 3vmax;
+    background: hsl(var(--h), var(--s), var(--lightness));
 }
 
 .event {
@@ -576,7 +586,7 @@ input {
 .eventCard {
     order: 1;
     font-weight: 400;
-    background: var(--bColor);
+    background: hsl(var(--bColor), var(--lightness));
 }
 
 .eventCard p {

@@ -10,7 +10,9 @@ export default class PopUp extends UI {
     #startTimeInput
     #endTimeInput
     #venueInput
-    #colorInput
+    #colorHueInput
+    #colorSaturationInput
+    #colorVisualizer
 
     constructor() {
         super()
@@ -27,11 +29,26 @@ export default class PopUp extends UI {
         this.#endTimeInput.step = 300
         this.#venueInput = document.createElement("input")
         this.#venueInput.type = 'text'
-        this.#colorInput = document.createElement("input")
-        this.#colorInput.type = 'color'
-        this.getElement().append(this.#nameInput, this.#descriptionInput, this.#startTimeInput, this.#endTimeInput, this.#venueInput, this.#colorInput)
-
+        this.#colorHueInput = document.createElement("input")
+        this.#colorHueInput.type = 'range'
+        this.#colorHueInput.max = 359
+        this.#colorHueInput.value = 180
+        this.#colorSaturationInput = document.createElement("input")
+        this.#colorSaturationInput.type = 'range'
+        this.#colorSaturationInput.max = 100
+        this.#colorVisualizer = document.createElement("div")
+        this.#colorVisualizer.id = "colorVisualizer"
+        this.getElement().append(this.#nameInput, this.#descriptionInput, this.#startTimeInput,
+            this.#endTimeInput, this.#venueInput, this.#colorHueInput, this.#colorSaturationInput,
+            this.#colorVisualizer)
+        this.#colorHueInput.addEventListener("input", () => this.updateColor())
+        this.#colorSaturationInput.addEventListener("input", () => this.updateColor())
         
+    }
+
+    updateColor() {
+        this.#colorVisualizer.style.setProperty("--h", this.#colorHueInput.value)
+        this.#colorVisualizer.style.setProperty("--s", this.#colorSaturationInput.value + "%")
     }
 
 
@@ -41,7 +58,10 @@ export default class PopUp extends UI {
         this.#startTimeInput.value = e.eventStartTime
         this.#endTimeInput.value = e.eventEndTime
         this.#venueInput.value = e.eventVenue
-        this.#colorInput.value = e.eventColor
+        this.#colorHueInput.value = e.eventColor.h
+        this.#colorSaturationInput.value = e.eventColor.s
+        this.updateColor()
+
     }
 
     getData() {
@@ -51,7 +71,8 @@ export default class PopUp extends UI {
         valMap.set("startTime", this.#startTimeInput.value)
         valMap.set("endTime", this.#endTimeInput.value)
         valMap.set("venue", this.#venueInput.value)
-        valMap.set("color", this.#colorInput.value)
+        valMap.set("colorHue", this.#colorHueInput.value)
+        valMap.set("colorSaturation", this.#colorSaturationInput.value)
         return valMap
     }
 

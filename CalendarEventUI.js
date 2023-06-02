@@ -76,7 +76,7 @@ export default class CalendarEventUI extends UI {
         nameSpan.textContent = this.#calendarEvent.getName()
         venueSpan.textContent = this.#calendarEvent.getVenue()
         description.textContent = this.#calendarEvent.getDescription()
-        eventCard.style.setProperty("--bColor", this.#calendarEvent.getColor())
+        eventCard.style.setProperty("--bColor", `${this.#calendarEvent.getColor().h}, ${this.#calendarEvent.getColor().s}%`)
     
         this.#eventCard = eventCard
     
@@ -94,25 +94,26 @@ export default class CalendarEventUI extends UI {
         minEventCard.classList.toggle("starred", this.#starred)
     
         data.textContent = `${this.#calendarEvent.getName()}\n${this.#calendarEvent.getVenue()}`
-        minEventCard.style.setProperty("--bColor", this.#calendarEvent.getColor())
+        minEventCard.style.setProperty("--bColor", `${this.#calendarEvent.getColor().h}, ${this.#calendarEvent.getColor().s}%`)
 
         this.#minEventCard = minEventCard
     }
 
     updateDisplayedData() {
         this.getElement().firstElementChild.textContent = this.#calendarEvent.getSummarizedData();
-        this.getElement().style.backgroundColor = this.#calendarEvent.getColor()
+        const hs = this.#calendarEvent.getColor()
+        this.getElement().style.backgroundColor = `hsl(${hs.h}, ${hs.s}%, var(--lightness))`
 
         if (this.#minEventCard) {
             this.#minEventCard.firstElementChild.textContent = `${this.#calendarEvent.getName()}\n${this.#calendarEvent.getVenue()}`
-            this.#minEventCard.style.setProperty("--bColor", this.#calendarEvent.getColor())
+            this.#minEventCard.style.setProperty("--bColor", `${hs.h}, ${hs.s}%`)
         }
 
         if (this.#eventCard) {
             this.#eventCard.firstElementChild.firstElementChild.textContent = this.#calendarEvent.getName()
             this.#eventCard.firstElementChild.lastElementChild.textContent = this.#calendarEvent.getVenue()
             this.#eventCard.lastElementChild.textContent = this.#calendarEvent.getDescription()
-            this.#eventCard.style.setProperty("--bColor", this.#calendarEvent.getColor())
+            this.#eventCard.style.setProperty("--bColor", `${hs.h}, ${hs.s}%`)
         }
     }
 
@@ -140,7 +141,9 @@ export default class CalendarEventUI extends UI {
                     _c.setStartTime(data.get("startTime"))
                     _c.setEndTime(data.get("endTime"))
                     _c.setVenue(data.get("venue"))
-                    _c.setColor(data.get("color"))
+                    const h = data.get("colorHue")
+                    const s = data.get("colorSaturation")
+                    _c.setColor({h, s})
                     this.updateDisplayedData()
                     Day.focus.currDay.addCalEventUI(this)
                 }
