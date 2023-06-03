@@ -13,6 +13,7 @@
 
 body {
     /* overflow: hidden; */
+    position: relative;
     --sL: 8vmax;
     --pGap: 0.5vmax;
     --a: 0;
@@ -171,12 +172,12 @@ input {
 }
 
 .day.select {
-    outline: 2px solid rgba(var(--bC), 0.5);
+    outline: 2px solid rgba(var(--bC), 1);
 }
 
-.day:not(.select):hover {
+/* .day:not(.select):hover {
     outline: 2px dashed rgba(var(--bC), 1);
-}
+} */
 
 .day::before, .day::after {
     --op: 0.72;
@@ -404,6 +405,15 @@ input {
     height: 3vmax;
     width: 3vmax;
     background: hsl(var(--h), var(--s), var(--lightness));
+}
+
+canvas {
+    position: absolute;
+    background: transparent;
+    pointer-events: none;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
 }
 
 .event {
@@ -724,5 +734,9 @@ input {
 
 .select {
     outline: 0.15vmax solid rgb(0, 136, 255);
+}
+
+.tentative {
+    opacity: 0.5;
 }
 

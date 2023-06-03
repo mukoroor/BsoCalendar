@@ -93,10 +93,16 @@ body.addEventListener("keydown", e => {
     }
 })
 
-// function getCssVariableValue(element, varName, unit) {
-//     return +window.getComputedStyle(element).getPropertyValue(varName).slice(0, -unit.length)
-// }
+const canvas = document.querySelector("canvas")
 
+function canvasToFullScreen() {
+  canvas.width = 3 * window.innerWidth
+  canvas.height = 3 * window.innerHeight
+}
+
+window.addEventListener('resize', canvasToFullScreen);
+
+canvasToFullScreen();
 displayMonth()
 
 

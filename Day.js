@@ -18,7 +18,8 @@ export default class Day extends UI {
         super()
         this.#dayNumber = dayNumber
         this.#calendarEventUITree = new AvlTree(CalendarEventUI.compare, undefined)
-
+        
+        let entered = false
         const dayNumContainer = document.createElement("div")
         const eventsContainer = document.createElement("div")
         dayNumContainer.textContent = dayNumber
@@ -28,18 +29,88 @@ export default class Day extends UI {
         this.getElement().append(dayNumContainer, eventsContainer)
         this.getElement().addEventListener("click", () => {
             if (Day.focus.currDay !== this) {
-                this.moveFocusBlock()
-                if (Day.focus.selectionSet.size) {
+                entered = false
+                if (Day.focus.selectionSet.size && [...Day.focus.selectionSet.values()][0].getElement().classList.contains("tentative")) {
                     Day.focus.selectionSet.forEach(e => {
+                        Day.focus.currDay.removeCalEventUI(e)
                         this.addCalEventUI(e)
                     })
                 }
+                this.moveFocusBlock()
                 Day.focus.selectionSet = new Set()
             }
         }, true)
 
-        this.getElement().addEventListener("mouseover", () => Day.dataPanel.setData(this))
-        this.getElement().addEventListener("mouseleave", () => Day.dataPanel.setData())
+        const c = document.querySelector("canvas")
+        const ctx = c.getContext("2d")
+        const scale = 3
+        this.getElement().addEventListener("mouseenter", () => {
+            entered = true
+            if (Day.focus.currDay !== this) {
+                Day.dataPanel.setData(this)
+                const getDimensions = (element) => {
+                    const rect = element.getBoundingClientRect()
+                    return { x: scale* rect.left, y: scale* rect.top, width: scale*rect.width, height: scale*rect.height }
+                }
+    
+                if (Day.focus.selectionSet.size && [...Day.focus.selectionSet.values()][0].getElement().classList.contains("tentative")) {
+                    const init = getDimensions(Day.focus.currDay.getElement())
+                    const fin = getDimensions(this.getElement())
+                    const relativeLocation = [Math.abs(Day.focus.currDay.getDayNumber() - dayNumber) > 8, (Day.focus.currDay.getDayNumber() - 1) % 7 - (dayNumber - 1) % 7]
+                    
+                    const vect = {xD:fin.x - init.x, yD: fin.y  - init.y}
+                    const magnitude = Math.sqrt(vect.xD * vect.xD + vect.yD * vect.yD)
+                    const offset = 4
+                    
+
+                    let start, end, cp1, cp2 
+                    if (relativeLocation[1] < -1) {
+                        start = {x: init.x + init.width + offset, y: init.y + init.height / 2}
+                        end = {x: fin.x, y:  fin.y + fin.height / 2}
+                        cp1 = {x: init.x + init.width + offset + (vect.xD - init.width) / 2, y: init.y + init.height / 2}
+                        cp2 = {x: init.x + init.width + offset + (vect.xD - init.width) / 2, y: fin.y + fin.height / 2}
+                    } else if (relativeLocation[1] > 1) {
+                        start = {x: init.x - offset, y: init.y + init.height / 2}
+                        end = {x: fin.x + fin.width, y: fin.y + fin.height / 2}
+                        cp1 = {x: init.x - offset + (vect.xD + fin.width) / 2, y: init.y + init.height / 2}
+                        cp2 = {x: init.x - offset + (vect.xD + fin.width) / 2, y: fin.y + fin.height / 2}
+                    } else if (Day.focus.currDay.getDayNumber() > dayNumber) {
+                        start = {x: init.x + init.width / 2, y: init.y - offset}
+                        end = {x: fin.x + fin.width / 2, y: fin.y + fin.height}
+                        cp1 = {x: init.x + init.width / 2, y: init.y - offset + (vect.yD + fin.height) / 2}
+                        cp2 = {x: fin.x + fin.width / 2, y: fin.y + fin.height - (vect.yD + fin.height) / 2}
+                    } else {
+                        start = {x: init.x + init.width / 2, y: init.y + init.height + offset}
+                        end = {x: fin.x + fin.width / 2, y: fin.y}
+                        cp1 = {x: init.x + init.width / 2, y: init.y + offset + (vect.yD + fin.height) / 2}
+                        cp2 = {x: fin.x + fin.width / 2, y: fin.y + fin.height - (vect.yD + fin.height) / 2}
+                    }
+                    const drawLine = (x) => {
+                        ctx.clearRect(0, 0, c.width, c.height)
+                        if (!entered) return
+                        ctx.strokeStyle = document.querySelector("body").classList.contains("dark") ? 'rgba(255, 255, 255, 0.5)' : 'rgba(40, 10, 40, 0.5)'
+                        ctx.beginPath()
+                        ctx.lineWidth = 8
+                        ctx.setLineDash([50, 10]) // Set the pattern for dashed line
+                        ctx.lineDashOffset = -(x % magnitude)
+
+                        if (relativeLocation[0] || Math.abs(relativeLocation[1]) > 1) {
+                            ctx.moveTo(start.x, start.y)
+                            ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y)
+                        }
+                        ctx.roundRect(fin.x, fin.y, fin.width + offset, fin.height - offset, [scale*parseInt(getComputedStyle(this.getElement()).borderRadius) + offset] )
+                        ctx.stroke()
+                        window.requestAnimationFrame(() => drawLine(++x))
+                    }
+                    window.requestAnimationFrame(() => drawLine(0))
+                }
+            }
+        })
+        this.getElement().addEventListener("mouseleave", () => {
+            entered = false
+            ctx.clearRect(0, 0, c.width, c.height)
+            Day.dataPanel.setData()
+        })
     }
 
     addCalEventUI(eventUI) {
@@ -249,7 +320,7 @@ export default class Day extends UI {
 
     moveFocusBlock() { 
         Day.focus.setDay(this)
-        Day.focus.selectionSet.forEach(e => e.getElement().classList.remove("select"))
+        Day.focus.selectionSet.forEach(e => e.getElement().classList.remove("select", "tentative"))
         const pos = Day.focus.getPos()
         const newPos = Day.focus.calcNewPos()
         Day.focus.setPos(newPos.x, newPos.y)
@@ -435,7 +506,8 @@ function createControlPanel() {
 
         moveAll() {
             Day.focus.selectionSet.forEach(e => {
-                Day.focus.currDay.removeCalEventUI(e)
+                e.getElement().classList.toggle("tentative")
+                // Day.focus.currDay.removeCalEventUI(e)
             })
             // this.setAttribute("icon", "move " + Day.focus.selectionSet.size)
         }
