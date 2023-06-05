@@ -41,7 +41,6 @@ body.light {
 
 button {
     background: none;
-    /* outline: none;                    */
     border: none;
 }
 
@@ -91,7 +90,6 @@ input {
     background-color: rgb(var(--primaryC));
     padding: var(--pGap);
     border-radius: 0.75vmax;
-    /* box-shadow: 0 0 calc(0.5 * var(--pGap)) rgb(105, 105, 105); */
 }
 
 .header {
@@ -225,8 +223,6 @@ input {
     gap: var(--gap);
     position: relative;
     background-color: rgb(var(--primaryC));
-    /* border-radius: 0.6vmax; */
-    /* border-bottom-right-radius: 0.5vmax; */
 }
 
 #controlPanel > * {
@@ -244,14 +240,6 @@ input {
     --background: 6, 90%, 49%;
 }
 
-/* #controlPanel > *[icon="edit"] {
-    --background:18, 16;
-}
-
-#controlPanel > *[icon="move_group"] {
-    --background:18, 168, 126;
-} */
-
 #controlPanel > *::before, #controlPanel > *::after {
     position: absolute;
     border-radius: 0.25vmax;
@@ -264,49 +252,21 @@ input {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* z-index: 2; */
     transition-property: transform;
     transition-duration: 0.25s;
     background: color-mix(in hsl, hsl(0, 0%, 15%) 5%, hsl(var(--background)));
 }
 
-#controlPanel > *:hover::before {
-    /* color: rgb(var(--primaryC)); */
-}
-
 #controlPanel > *:active::before {
     transform: scale(0.95);
-    color: unset;
+    background: color-mix(in hsl, hsl(0, 0%, 15%) 2.5%, hsl(var(--background)));
     transform-origin: center;
 }
-
-/* #controlPanel::after {
-    position: absolute;
-    content: "";
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    height: 2vmax;
-    width: 2vmax;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    z-index: 1;
-    inset: -2px;
-    transition: all 0.25s;
-    background: conic-gradient(from var(--a), hsl(var(--accentC)), rgb(var(--textColor)), transparent 25%, transparent, transparent, hsl(var(--accentC)));
-    background: rgb(var(--textColor));
-}
-
-#controlPanel:hover::after {
-    opacity: 1;
-} */
-
 
 #dataPanel {
     grid-row-start: 5;
     gap: 0 var(--pGap);
     grid-template-columns: max-content 1fr;
-    /* border: calc(var(--pGap) / 2) solid #F57E00; */
     box-shadow: inset 0 0 1ex rgba(0, 0, 0, 0.25);
     grid-template-rows: repeat(5, 1fr);
     grid-auto-flow: column;
@@ -320,36 +280,28 @@ input {
     display: grid;
     background: rgba(var(--primaryC), 0.25);
     margin-top: 0.1vmax;
-    /* border-radius: 0.25vmax; */
 }
 
-
-
-/* #dataPanel > * {
-    text-shadow: 0.1ex 0.1ex black;
-    text-shadow: 0.1ex 0.1ex rgb(var(--textColor));
-} */
+#dataPanel .star {
+    font-size: 1.5em;
+}
 
 #dataPanel div {
     white-space: pre;
     font-size: 1em;
-    /* background: #F57E00; */
+    text-align: ;
+    display: inline-flex;
+    justify-content: baseline;
 }
 
 #dataPanel div:first-child {
-    /* i want the background to be a canvas using collatz conjecutre */
     margin: calc(var(--pGap) / 2);
     width: calc(var(--sL) - 0.25vmax - var(--pGap) / 2);
     font-size: 3em;
     font-weight: 500;
     grid-row: 1/ -1;
-    background: rgb(var(--primaryC));
-    background: transparent;
-    /* box-shadow: inset 0 0 1ex rgba(0, 0, 0, 0.25); */
-    border-radius: 5%;
-    display: inline-flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 }
 
 #focus {
@@ -364,13 +316,6 @@ input {
     transform: scale(2);
     filter: blur(15px);
 }
-
-/* #focus::after {
-    content: "";
-    position: absolute;
-    inset: calc(-1 * var(--gap));
-    transform-origin: center;
-} */
 
 #today {
     background: hsl(var(--accentC));
@@ -571,18 +516,6 @@ input {
     border-right: 1px dotted lemonchiffon;
 }
 
-/* .hour::before {
-    position: absolute;
-    top: 2lh;
-    font-size: 0.5em;
-    left: 1ch;
-    color:rgba(var(--accentC), 0.75);
-    font-weight: 700;
-    width: 100%;
-    word-spacing: 1ch;
-    content: "00 05 10 15 20 25 30 35 40 45 50 55";
-} */
-
 .eventCard {
     order: 1;
     font-weight: 400;
@@ -624,13 +557,11 @@ input {
 
 .listCard p {
     background: radial-gradient(circle at 0% 100%, rgb(var(--primaryC)), transparent), linear-gradient(65deg, transparent, transparent, rgb(var(--primaryC)));
-    /* background: linear-gradient(65deg, var(--bColor), var(--bColor), rgb(var(--primaryC))), radial-gradient(circle at 0% 100%, rgb(var(--primaryC)), var(--bColor)); */
     background-blend-mode: multiply;
     border-radius: inherit;
     box-shadow: 0 0 0.5ex black;
     padding: 0.5ex 1ex;
     font-weight: 350;
-    /* transition: all 2s; */
 }
 
 .hourCard {
@@ -653,19 +584,8 @@ input {
     max-width: calc(100% - 2ex);
 }
 
-/* .clamp .hourCard p {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    align-self: center;
-} */
-
 .showNewEvent {
     outline-color: hsl(var(--accentC));
-}
-
-#dayView[group-expanded="true"] > *:not(.hour, .expanded) {
-    filter: blur(0.75px) grayscale(50%);
 }
 
 #expansion .material-symbols-rounded {
@@ -726,3 +646,6 @@ input {
     outline: 0.15vmax solid rgb(0, 136, 255);
 }
 
+.tentative {
+    opacity: 0.5;
+}

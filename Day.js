@@ -26,20 +26,41 @@ export default class Day extends UI {
         this.getElement().style.gridColumn = dayNumber % 7 || 7
         this.getElement().classList.add("day")
         this.getElement().append(dayNumContainer, eventsContainer)
-        this.getElement().addEventListener("click", () => {
-            if (Day.focus.currDay !== this) {
-                this.moveFocusBlock()
-                if (Day.focus.selectionSet.size) {
-                    Day.focus.selectionSet.forEach(e => {
-                        this.addCalEventUI(e)
-                    })
-                }
-                Day.focus.selectionSet = new Set()
-            }
-        }, true)
 
-        this.getElement().addEventListener("mouseover", () => Day.dataPanel.setData(this))
-        this.getElement().addEventListener("mouseleave", () => Day.dataPanel.setData())
+        let clones = []
+        this.getElement().addEventListener("click", () => {
+            clones.forEach(clone => eventsContainer.removeChild(clone))
+            clones = []
+            if (Day.focus.selectionSet.size) {
+                Day.focus.selectionSet.forEach(e => {
+                    if (e.getElement().classList.contains("tentative")) {
+                        if (Day.focus.currDay !== this) {
+                            Day.focus.currDay.removeCalEventUI(e)
+                            this.addCalEventUI(e)
+                        }
+                        e.getElement().classList.remove("tentative", "select")
+                    }
+                })
+            }
+            if (Day.focus.currDay != this) this.moveFocusBlock()
+            Day.focus.selectionSet = new Set()
+        })
+
+        this.getElement().addEventListener("mouseenter", () => {
+            Day.focus.selectionSet.forEach(e => {
+                if (e.getElement().classList.contains("tentative") && this !== Day.focus.currDay) {
+                    const clone = e.getElement().cloneNode(true)
+                    clones.push(clone)
+                }
+            })
+            eventsContainer.prepend(...clones)
+            Day.dataPanel.setData(this)
+        })
+        this.getElement().addEventListener("mouseleave", () => {
+            clones.forEach(clone => eventsContainer.removeChild(clone))
+            clones = []
+            Day.dataPanel.setData()
+        })
     }
 
     addCalEventUI(eventUI) {
@@ -54,7 +75,7 @@ export default class Day extends UI {
         Day.focus.newestEvent = eventUI
         // gsap.from(eventUI.getElement().firstElementChild, {color: "green"})
         Timeline.showTimeline()
-        // eventUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
+        eventUI.getElement().scrollIntoView({ behavior: "smooth", block: "center"})
         Day.dataPanel.setData()
         
     }
@@ -85,7 +106,7 @@ export default class Day extends UI {
         const minEventCard = eventUI.getMinEventCard()
         if (eventCard) eventCard.parentNode?.removeChild(eventCard)
         if (minEventCard) minEventCard.parentNode?.removeChild(minEventCard)
-        this.getElement().lastElementChild.removeChild(eventUI.getElement())
+        if (eventUI.parentNode == this.getElement().lastElementChild) this.getElement().lastElementChild.removeChild(eventUI.getElement())
         this.#calendarEventUITree.remove(eventUI)
         Day.dataPanel.setData()
     }
@@ -249,7 +270,6 @@ export default class Day extends UI {
 
     moveFocusBlock() { 
         Day.focus.setDay(this)
-        Day.focus.selectionSet.forEach(e => e.getElement().classList.remove("select"))
         const pos = Day.focus.getPos()
         const newPos = Day.focus.calcNewPos()
         Day.focus.setPos(newPos.x, newPos.y)
@@ -435,7 +455,9 @@ function createControlPanel() {
 
         moveAll() {
             Day.focus.selectionSet.forEach(e => {
-                Day.focus.currDay.removeCalEventUI(e)
+                // Day.focus.currDay.getElement()
+                e.getElement().classList.toggle("tentative")
+                // e.getElement().classList.toggle("finalized")
             })
             // this.setAttribute("icon", "move " + Day.focus.selectionSet.size)
         }

@@ -36,13 +36,16 @@ export default class CalendarEventUI extends UI {
         this.updateDisplayedData()
         this.getElement().classList.add("event")
         this.getElement().addEventListener("infoChanged", this.updateDisplayedData)
-        this.getElement().addEventListener("click", () => {
+        this.getElement().addEventListener("click", (e) => {
             const selected = this.getElement().classList.toggle("select")
+            this.getElement().classList.remove("tentative")
+            console.log(Day.focus.selectionSet)
             if (selected) {
                 Day.focus.selectionSet.add(this)
             } else {
                 Day.focus.selectionSet.delete(this)
             }
+            e.stopPropagation()
         })
         this.getElement().setAttribute("title", this.#calendarEvent.getName())
     }
