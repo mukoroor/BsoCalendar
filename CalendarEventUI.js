@@ -23,12 +23,12 @@ export default class CalendarEventUI extends UI {
 
         star.textContent = "star"
         star.addEventListener("click", (e) => {
+            e.stopPropagation()
             this.#starred = !this.#starred
             this.getElement().classList.toggle("starred", this.#starred)
             this.getEventCard()?.classList.toggle("starred", this.#starred)
             this.getMinEventCard()?.classList.toggle("starred", this.#starred)
             Day.dataPanel.setData()
-            e.stopPropagation()
         })
 
         this.getElement().append(displayedText, star)
@@ -37,9 +37,10 @@ export default class CalendarEventUI extends UI {
         this.getElement().classList.add("event")
         this.getElement().addEventListener("infoChanged", this.updateDisplayedData)
         this.getElement().addEventListener("click", (e) => {
+            
+            console.log("event clicked")
+            if (this.getElement().classList.contains("tentative")) return
             const selected = this.getElement().classList.toggle("select")
-            this.getElement().classList.remove("tentative")
-            console.log(Day.focus.selectionSet)
             if (selected) {
                 Day.focus.selectionSet.add(this)
             } else {

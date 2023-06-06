@@ -19,8 +19,8 @@ export default class PopUp extends UI {
         PopUp.dialog.replaceChild(this.getElement(), PopUp.dialog.lastElementChild)
         this.#nameInput = document.createElement("input")
         this.#nameInput.type = 'text'
-        this.#descriptionInput = document.createElement("input")
-        this.#descriptionInput.type = 'text'
+        this.#descriptionInput = document.createElement("textarea")
+        // this.#descriptionInput.type = 'text'
         this.#startTimeInput = document.createElement("input")
         this.#startTimeInput.type = 'time'
         this.#startTimeInput.step = 300
@@ -38,8 +38,8 @@ export default class PopUp extends UI {
         this.#colorSaturationInput.max = 100
         this.#colorVisualizer = document.createElement("div")
         this.#colorVisualizer.id = "colorVisualizer"
-        this.getElement().append(this.#nameInput, this.#descriptionInput, this.#startTimeInput,
-            this.#endTimeInput, this.#venueInput, this.#colorHueInput, this.#colorSaturationInput,
+        this.getElement().append(document.createTextNode("Name"), this.#nameInput, document.createTextNode("Description"), this.#descriptionInput, document.createTextNode("Start Time"), this.#startTimeInput,
+            document.createTextNode("End Time"), this.#endTimeInput, document.createTextNode("Venue"), this.#venueInput, document.createTextNode("Hue"), this.#colorHueInput, document.createTextNode("Saturation"), this.#colorSaturationInput,
             this.#colorVisualizer)
         this.#colorHueInput.addEventListener("input", () => this.updateColor())
         this.#colorSaturationInput.addEventListener("input", () => this.updateColor())
@@ -52,7 +52,7 @@ export default class PopUp extends UI {
     }
 
 
-    fillValues(e = {eventName: "", eventDescription: "", eventStartTime: "", eventEndTime: "23:59", eventVenue: "", eventColor: "#000000"}) {
+    fillValues(e = {eventName: "", eventDescription: "", eventStartTime: "", eventEndTime: "23:55", eventVenue: "", eventColor: "#000000"}) {
         this.#nameInput.value = e.eventName
         this.#descriptionInput.value = e.eventDescription
         this.#startTimeInput.value = e.eventStartTime
@@ -86,6 +86,7 @@ export default class PopUp extends UI {
                         return
                     }
                 }
+                // if (CalendarEvent.compareTime(this.#startTimeInput.value, this.)
                 cross.setAttribute("data-valid", 1) //1 is true
             }
 

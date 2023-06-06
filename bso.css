@@ -48,8 +48,32 @@ span {
     overflow: hidden;
 }
 
-input {
-    color: black;
+input, textarea {
+    /* color: black; */
+    background: linear-gradient(to top, rgba(var(--textColor), 0.6) 0 1px, rgba(var(--secondaryC), 0.4) 1px 100%);
+    border: none;
+    border-radius: 0.25ex;
+    width: 100%;
+    font-size: 1.15em;
+}
+
+input:focus, textarea:focus {
+    outline: 2px solid rgba(var(--textColor), 0.3);
+}
+
+input[type="time"] {
+    width: min-content;
+}
+
+input[type="time"]:-webkit-
+
+textarea {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    display: inline-block;
+    resize: vertical;
+    max-height: 10lh;
+    min-height: 2lh;
 }
 
 ::-webkit-scrollbar {
@@ -71,6 +95,11 @@ input {
     opacity: 0;
 }
 
+dialog[open] ~ .summary {
+    filter: blur(2px) grayscale(0.5) brightness(82%);
+    transition: filter 0.25s ease-in-out;
+}
+
 #calendar, .header, .summary, .timeline, .detailed div, .nav > * {
     display: flex;
     justify-content: center;
@@ -79,11 +108,6 @@ input {
 
 .header, .detailed div {
     justify-content: space-between;
-}
-
-.blur {
-    filter: blur(1px) brightness(75%) grayscale(0.2);
-    transition: filter 0.2s ease-in-out;
 }
 
 .card {
@@ -278,7 +302,7 @@ input {
 
 #dataPanel, #controlPanel {
     display: grid;
-    background: rgba(var(--primaryC), 0.25);
+    background: rgba(var(--primaryC), 0.75);
     margin-top: 0.1vmax;
 }
 
@@ -324,30 +348,40 @@ input {
 }
 
 #eventDialog {
-    --r: 20px;
     position: absolute;
     top: 50%;
+    border: none;
+    box-shadow: 0 0 1vmax rgba(0, 0, 0, 0.4);
     left: 50%;
     transform: translate(-50%, -50%);
     font-weight: 500;
     width: calc(5 * var(--sL));
+    width: 50%;
     flex-direction: column;
     align-items: flex-start;
     padding-top: 2.5vmax;
-    border-radius: 0.3em;
+    border-radius: 0.75ex;
 }
 
 #eventDialog > div {
     display: flex;
+    gap: var(--pGap);
+    /* width: min-content; */
     flex-direction: column;
     align-items: stretch;
+}
+
+#eventDialog  > div *:not(input[type="range"]) {
+    font-weight: 250;
+    box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.4);
 }
 
 #colorVisualizer {
     --h: 180;
     --s: 50%;
     height: 3vmax;
-    width: 3vmax;
+    /* width: 3vmax; */
+    border-radius: 0.5ex;
     background: hsl(var(--h), var(--s), var(--lightness));
 }
 
@@ -380,7 +414,6 @@ input {
 
 #submitExit path {
     fill:none;
-    stroke-width:13.229;
     stroke-width: 20;
     stroke-miterlimit:5.8;
     stroke: rgb(var(--textColor));
@@ -565,8 +598,9 @@ input {
 }
 
 .hourCard {
-    font-weight: 600;
-    font-size: 0.75em;
+    font-weight: 500;
+    text-rendering: optimizeLegibility;
+    font-size: 0.85em;
     border-radius: 1ex;
     min-height: calc(2lh + 2ex);
     outline: 0.5ex solid transparent;

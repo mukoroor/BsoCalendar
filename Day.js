@@ -10,7 +10,6 @@ export default class Day extends UI {
     static focus = createFocus()
     static dataPanel = createDataPanel()
     static controlPanel = createControlPanel()
-    // static clock = setInterval(() => h++, 100)
     #dayNumber
     #calendarEventUITree
 
@@ -27,39 +26,41 @@ export default class Day extends UI {
         this.getElement().classList.add("day")
         this.getElement().append(dayNumContainer, eventsContainer)
 
-        let clones = []
-        this.getElement().addEventListener("click", () => {
-            clones.forEach(clone => eventsContainer.removeChild(clone))
-            clones = []
+        this.getElement().addEventListener("click", (e) => {
+            // clones.forEach(clone => eventsContainer.removeChild(clone))
             if (Day.focus.selectionSet.size) {
-                Day.focus.selectionSet.forEach(e => {
-                    if (e.getElement().classList.contains("tentative")) {
-                        if (Day.focus.currDay !== this) {
-                            Day.focus.currDay.removeCalEventUI(e)
-                            this.addCalEventUI(e)
-                        }
-                        e.getElement().classList.remove("tentative", "select")
+                let arr = [...Day.controlPanel.moveDay?.getElement().lastElementChild.querySelectorAll(".clone")]
+                while (arr.length) {
+                    let ev = arr.shift()
+                    ev.parentNode.removeChild(ev)
+                }
+                Day.focus.selectionSet.forEach(ev => {
+                    if (!ev.getElement().classList.contains("tentative")) return
+                    ev.getElement().classList.remove("tentative", "select")
+                    this.addCalEventUI(ev)
+                })
+            }
+            Day.focus.selectionSet.clear()
+            if (Day.focus.currDay != this) this.moveFocusBlock()
+        })
+
+        this.getElement().addEventListener("mouseenter", (e) => {
+            if (Day.controlPanel.moveDay != this) {
+                Day.focus.selectionSet.forEach(ev => {
+                    if (ev.getElement().classList.contains("tentative")) {
+                        this.addCalEventUI(ev)
                     }
                 })
             }
-            if (Day.focus.currDay != this) this.moveFocusBlock()
-            Day.focus.selectionSet = new Set()
-        })
-
-        this.getElement().addEventListener("mouseenter", () => {
-            Day.focus.selectionSet.forEach(e => {
-                if (e.getElement().classList.contains("tentative") && this !== Day.focus.currDay) {
-                    const clone = e.getElement().cloneNode(true)
-                    clones.push(clone)
-                }
-            })
-            eventsContainer.prepend(...clones)
             Day.dataPanel.setData(this)
         })
-        this.getElement().addEventListener("mouseleave", () => {
-            clones.forEach(clone => eventsContainer.removeChild(clone))
-            clones = []
-            Day.dataPanel.setData()
+        this.getElement().addEventListener("mouseleave", (e) => {
+            if (Day.controlPanel.moveDay != this) {
+                Day.focus.selectionSet.forEach(ev => {
+                    if (ev.getElement().classList.contains("tentative")) this.removeCalEventUI(ev)
+                })
+                Day.dataPanel.setData()
+            }
         })
     }
 
@@ -106,7 +107,7 @@ export default class Day extends UI {
         const minEventCard = eventUI.getMinEventCard()
         if (eventCard) eventCard.parentNode?.removeChild(eventCard)
         if (minEventCard) minEventCard.parentNode?.removeChild(minEventCard)
-        if (eventUI.parentNode == this.getElement().lastElementChild) this.getElement().lastElementChild.removeChild(eventUI.getElement())
+        if (eventUI.getElement().parentNode == this.getElement().lastElementChild) this.getElement().lastElementChild.removeChild(eventUI.getElement())
         this.#calendarEventUITree.remove(eventUI)
         Day.dataPanel.setData()
     }
@@ -124,87 +125,6 @@ export default class Day extends UI {
         this.#calendarEventUITree.traverseInOrder((node) => arr.push(node.getValue()), undefined)
         return arr
     }
-
-    // groupEventsByTime() {
-    //     const groups = {};
-    //     const events =  this.getEventArray()
-    //     for (const event of events) {
-    //         const _e = event.getCalendarEvent()
-    //         const key = _e.getTimeRangeString();
-    //         if (!groups[key]) {
-    //             groups[key] = [];
-    //         }
-    //         groups[key].push(event);
-    //     }
-    //     return groups
-    // }
-    // groupEventsByFlow() {
-    //     console.time("a")
-    //     const master = []
-    //     const events =  this.getEventArray()
-    //     if (events.length) {
-    //         master.push([events[0]])
-    //     }
-        
-    //     for (let i = 1; i < events.length; i++) {
-    //         let a = events[i]
-    //         let k = 0
-    //         let best = {val: 1, index: -1}
-    //         while(k < master.length) {
-    //             let b = master[k]
-    //             let tempVal = CalendarEvent.compareTime(a.getCalendarEvent().getStartTime(), b[b.length - 1].getCalendarEvent().getEndTime())
-    //             if (!tempVal) {
-    //                 best.index = k
-    //                 break
-    //             }
-                
-    //             if (tempVal > -1 && tempVal > best.val) {
-    //                 best.val = tempVal
-    //                 best.index = k
-    //             } else {
-    //                 k++
-    //             }
-    //         }
-    //         if (best.index == -1 ) master.push([a])
-    //         else master[best.index].push(a)
-    //     }
-    //     console.timeEnd("a")
-    //     return master
-    // }
-
-    // groupEventsByFlowOther() {
-    //     console.time("b")
-    //     const master = []
-    //     const events =  this.getEventArray()
-    //     if (events.length) {
-    //         master.push([events[0]])
-    //     }
-        
-    //     for (let i = 1; i < events.length; i++) {
-    //         let a = events[i]
-    //         let k = 0
-    //         let best = {val: 2400, index: -1}
-    //         while(k < master.length) {
-    //             let b = master[k]
-    //             let tempVal = CalendarEvent.compareTime(a.getCalendarEvent().getStartTime(), b[b.length - 1].getCalendarEvent().getEndTime())
-    //             if (!tempVal) {
-    //                 best.index = k
-    //                 break
-    //             }
-                
-    //             if (tempVal > -1 && tempVal < best.val) {
-    //                 best.val = tempVal
-    //                 best.index = k
-    //             } else {
-    //                 k++
-    //             }
-    //         }
-    //         if (best.index == -1 ) master.push([a])
-    //         else master[best.index].push(a)
-    //     }
-    //     console.timeEnd("b")
-    //     return master
-    // }
 
     groupEventsByFlowStartTime() {
         console.time("c")
@@ -239,34 +159,6 @@ export default class Day extends UI {
         console.timeEnd("c")
         return master
     }
-
-    // groupEvents() {
-    //     console.time("d")
-    //     const events =  this.getEventArray()
-    //     const isOverlap = (event1, event2) => {
-    //         return +event1.getCalendarEvent().getStartTime().replace(":", "") < +event2.getCalendarEvent().getEndTime().replace(":", "") && +event2.getCalendarEvent().getStartTime().replace(":", "") < +event1.getCalendarEvent().getEndTime().replace(":", "");
-    //       }
-      
-    //     const master = []
-
-    //     for (const event of events) {
-    //       let addedToGroup = false;
-      
-    //       for (const group of master) {
-    //         if (!group.some(existingEvent => isOverlap(event, existingEvent))) {
-    //           group.push(event);
-    //           addedToGroup = true;
-    //           break;
-    //         }
-    //       }
-      
-    //       if (!addedToGroup) {
-    //         master.push([event]);
-    //       }
-    //     }
-    //     console.timeEnd("d")
-    //     return master;
-    //   }
 
     moveFocusBlock() { 
         Day.focus.setDay(this)
@@ -328,6 +220,7 @@ function createFocus() {
         }
 
         setDay(newDay) {
+            // this.currDay?.getElement().click()
             this.currDay?.getElement().classList.remove("select")
             newDay.getElement().classList.add("select")
             this.currDay = newDay
@@ -454,12 +347,15 @@ function createControlPanel() {
         }
 
         moveAll() {
+            Day.controlPanel.moveDay = Day.focus.currDay
             Day.focus.selectionSet.forEach(e => {
-                // Day.focus.currDay.getElement()
                 e.getElement().classList.toggle("tentative")
-                // e.getElement().classList.toggle("finalized")
+                const clone = e.getElement().cloneNode(true)
+                clone.classList.add("clone")
+                e.getElement().parentNode.replaceChild(clone, e.getElement())
+                Day.focus.currDay.removeCalEventUI(e)
+                console.log(e.getElement().parentNode)
             })
-            // this.setAttribute("icon", "move " + Day.focus.selectionSet.size)
         }
     }
     return new ControlPanel()
