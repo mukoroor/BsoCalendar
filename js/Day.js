@@ -1,4 +1,4 @@
-import AvlTree from "./node_modules/@datastructures-js/binary-search-tree/src/avlTree.js"
+import AvlTree from "../node_modules/@datastructures-js/binary-search-tree/src/avlTree.js"
 import CalendarEventUI from "./CalendarEventUI.js"
 import CalendarEvent from "./CalendarEvent.js"
 import Timeline from "./Timeline.js"

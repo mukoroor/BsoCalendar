@@ -1,7 +1,7 @@
-import Year from "./Year.js"
-import Timeline from "./Timeline.js"
-import Day from "./Day.js"
-import Month from "./Month.js"
+import Year from "./js/Year.js"
+import Timeline from "./js/Timeline.js"
+import Day from "./js/Day.js"
+import Month from "./js/Month.js"
 
 
 const todayDate = new Date()
